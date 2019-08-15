@@ -161,9 +161,15 @@ export async function getEventById(id) {
 
     return {
       id,
-      body,
+      name: body.name,
+      description: body.description,
+      videoUrl: event.video_uri,
+      date: moment
+        .utc(event.event_datetime.toDate())
+        .format("MM-DD-YYYY HH:MM:SS"),
       minutes: minutesItems,
-      transcript: transcript.data
+      transcript: transcript.data,
+      scPageUrl: event.source_uri
     };
   } catch (e) {
     return Promise.reject(e);
@@ -179,7 +185,9 @@ export async function getBasicEventById(id) {
       id,
       name: body.name,
       description: body.description,
-      date: body.created.toDate().toString()
+      date: moment
+        .utc(event.event_datetime.toDate())
+        .format("MM-DD-YYYY HH:MM:SS")
     };
   } catch (e) {
     return Promise.reject(e);

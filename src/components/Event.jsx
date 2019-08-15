@@ -21,6 +21,7 @@ const SeekVideoButton = styled(Button)({
 const Pane = styled(Tab.Pane)({});
 
 const Event = ({
+  id,
   title,
   date,
   description,
@@ -63,7 +64,7 @@ const Event = ({
       render: () => (
         <Pane attached={false}>
           <Grid.Row>
-            {/* TODO: add startTime and endTime */}
+            {/* TODO: add start_time and endTime */}
             {transcript.map(({ text }) => (
               <p>{text}</p>
             ))}
@@ -93,7 +94,7 @@ const Event = ({
           />
           {/* TODO: handle no results */}
           {transcriptSearchText !== "" ? (
-            transcriptItems.map(({ text, startTime }) => (
+            transcriptItems.map(({ text, start_time }) => (
               <TranscriptItem>
                 <TranscriptItemText
                   searchWords={[transcriptSearchText]}
@@ -101,7 +102,7 @@ const Event = ({
                   textToHighlight={text}
                 />
 
-                <SeekVideoButton primary onClick={() => handleSeek(startTime)}>
+                <SeekVideoButton primary onClick={() => handleSeek(start_time)}>
                   Jump to this point in video
                 </SeekVideoButton>
               </TranscriptItem>
