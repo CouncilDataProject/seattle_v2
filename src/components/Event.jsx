@@ -76,7 +76,8 @@ const Event = ({
 
   return (
     <Grid>
-      <Grid.Row>
+      {/* TODO: move this inline styling */}
+      <Grid.Row style={{ padding: "0 14px" }}>
         <Title>{title}</Title>
         <Date>{date}</Date>
       </Grid.Row>
