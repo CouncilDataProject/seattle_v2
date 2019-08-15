@@ -1,29 +1,33 @@
 import React from "react";
 import mockEvent from "../data/event";
+import { getEventById } from "../api/eventApi";
 import Event from "../components/Event";
 
-const EventContainer = () => {
-  //   TODO: fetch event details
+const EventContainer = ({ id }) => {
+  const [event, setEvent] = React.useState();
 
-  const {
-    title,
-    date,
-    description,
-    scPageUrl,
-    videoUrl,
-    transcript
-  } = mockEvent;
+  React.useEffect(() => {
+    try {
+      (async () => {
+        const eventData = await getEventById(id);
+        setEvent(eventData);
+      })();
+    } catch (e) {
+      // log error and display message
+    }
+  }, []);
 
-  return (
+  return event ? (
     <Event
-      title={title}
-      date={date}
-      description={description}
-      scPageUrl={scPageUrl}
-      videoUrl={videoUrl}
-      transcript={transcript}
+      id={id}
+      title={event.name}
+      date={event.date}
+      description={event.description}
+      scPageUrl={event.scPageUrl}
+      videoUrl={event.videoUrl}
+      transcript={event.transcript}
     />
-  );
+  ) : null;
 };
 
 export default EventContainer;
