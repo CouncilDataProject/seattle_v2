@@ -14,6 +14,10 @@ const TranscriptItem = styled.div({
   margin: "1em 0"
 });
 const TranscriptItemText = styled(Highlighter)({});
+const TranscriptSearchHelpMessage = styled.span({
+  display: "block",
+  marginTop: "1em"
+});
 const SeekVideoButton = styled(Button)({
   display: "block !important",
   marginTop: "1em !important"
@@ -76,7 +80,8 @@ const Event = ({
 
   return (
     <Grid>
-      <Grid.Row>
+      {/* TODO: move this inline styling */}
+      <Grid.Row style={{ padding: "0 14px" }}>
         <Title>{title}</Title>
         <Date>{date}</Date>
       </Grid.Row>
@@ -108,7 +113,9 @@ const Event = ({
               </TranscriptItem>
             ))
           ) : (
-            <p>Enter in a search term to get results.</p>
+            <TranscriptSearchHelpMessage>
+              Enter a search term to get results.
+            </TranscriptSearchHelpMessage>
           )}
         </Grid.Column>
       </Grid.Row>
