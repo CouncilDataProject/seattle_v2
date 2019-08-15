@@ -7,10 +7,16 @@ const Layout = styled(Container)({
   minHeight: "100vh"
 });
 
+const ContentContainer = styled(Container)({
+  margin: "2em !important"
+});
+
 const HomePage = () => {
   return (
     <Layout>
-      <EventCardGroup />
+      <ContentContainer>
+        <EventCardGroup />
+      </ContentContainer>
     </Layout>
   );
 };

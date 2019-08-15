@@ -7,10 +7,16 @@ const Layout = styled(Container)({
   minHeight: "100vh"
 });
 
+const ContentContainer = styled(Container)({
+  margin: "2em !important"
+});
+
 const EventPage = ({ match }) => {
   return (
     <Layout>
-      <Event id={match.params.id} />
+      <ContentContainer>
+        <Event id={match.params.id} />
+      </ContentContainer>
     </Layout>
   );
 };
