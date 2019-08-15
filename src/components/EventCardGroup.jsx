@@ -5,9 +5,9 @@ import { Card } from "semantic-ui-react";
 const EventCardGroup = ({ events }) => {
   return (
     <Card.Group>
-      {events.map(({ title, date, description, id }) => (
+      {events.map(({ name, date, description, id }) => (
         <EventCard
-          title={title}
+          name={name}
           date={date}
           description={description}
           link={`/events/${id}`}
