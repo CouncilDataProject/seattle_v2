@@ -1,5 +1,4 @@
 import React from "react";
-import mockEvent from "../data/event";
 import { getEventById } from "../api/eventApi";
 import Event from "../components/Event";
 
