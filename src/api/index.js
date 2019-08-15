@@ -1,10 +1,11 @@
-import { getAllEvents, getSingleEvent } from './eventApi'
+import { getAllEvents, getSingleEvent, getVotesForEvent } from './eventApi'
 import { getAllPeople, getVotesForPerson } from './personApi'
 
 export { 
     getAllEvents, 
     getSingleEvent,
     getAllPeople,
-    getVotesForPerson
+    getVotesForPerson,
+    getVotesForEvent
 }
 
