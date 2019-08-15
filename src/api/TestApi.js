@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
     getAllEvents,
-    getSingleEvent,
-    getAllPeople,
-    getVotesForPerson,
+    // getSingleEvent,
     getVotesForEvent,
 } from './'
 
@@ -24,16 +22,6 @@ export function TestApi() {
     }
     fetchData();
   },[])
-  useEffect(() => {
-    async function fetchData() {
-      const [first] = events
-      const res = await getSingleEvent(first);
-      console.log('should be an event data with transcript', res);
-    }
-    if(events) {
-      fetchData()
-    }
-  }, [events])
   console.log('events', events)
   return (
     <div>

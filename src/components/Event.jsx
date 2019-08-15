@@ -1,5 +1,6 @@
 import React from "react";
-import { Grid, Input, Button, Tab, TextArea } from "semantic-ui-react";
+import { Grid, Input, Button, Tab } from "semantic-ui-react";
+import EventVotingPane from '../containers/EventVotingPane'
 import ReactPlayer from "react-player";
 import Highlighter from "react-highlight-words";
 import styled from "@emotion/styled";
@@ -107,6 +108,17 @@ const Event = ({
           </ScrollGridRow>
         </Pane>
       )
+    },
+    {
+      menuItem: "Votes",
+      render: () => {
+        return (
+        <Pane attached={false}>
+          <Grid.Row>
+            <EventVotingPane eventId={id}/>
+          </Grid.Row>
+        </Pane>
+      )}
     }
   ];
 
