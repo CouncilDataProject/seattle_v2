@@ -10,25 +10,38 @@ firebase.initializeApp({
 
   const db = firebase.firestore();
 
+  async function extractData(queryResults){
+    const results = []
+    queryResults.forEach(doc => {
+        const data = doc.data()
+        const thisEvent = {
+            id: doc.id,
+            ...data
+        }
+        results.push(thisEvent)
+    })
+    return results
+}
+
   /**
    * 
    * @param {string} tableName table to get all resources from
-   * @return {function} returns function that fetches all resources
+   * @return {array} returns array of resources
    */
-  export function getAllResources(tableName) {
-      return async function(){
-        return db.collection(tableName).get()
-        .catch(err => {
-            console.err('err--->', err)
-        })
-      } 
+  export async function getAllResources(tableName) {
+    const res = await db.collection(tableName).get()
+    .catch(err => {
+        console.err('err--->', err)
+    })
+    return extractData(res)
   }
 
-export function getSingleResource(tableName, id){
-    return async function(){
-        return db.collection(tableName).where('id', '==', id).get()
-    }
-
+export async function getSingleResource(tableName, accessor, id){
+    const res = await db.collection(tableName).where(accessor, '==', id).get()
+    .catch(err => {
+        console.err('err--->', err)
+    })
+    return extractData(res)
 }
 
 
