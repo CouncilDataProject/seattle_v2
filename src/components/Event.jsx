@@ -1,14 +1,24 @@
 import React from "react";
-import { Grid, Input, Button, Tab } from "semantic-ui-react";
+import { Grid, Input, Button, Tab, TextArea } from "semantic-ui-react";
 import ReactPlayer from "react-player";
 import Highlighter from "react-highlight-words";
 import styled from "@emotion/styled";
+import hhmmss from "../utils/hhmmss";
 
 const Title = styled.h1({ width: "100%" });
-const Date = styled.span({});
+const Date = styled.span({
+  display: "block",
+  color: "grey",
+  fontWeight: "400"
+});
 const Subheader = styled.h2({ width: "100%" });
 const Description = styled.p({});
 const SearchInput = styled(Input)({ width: "100%" });
+const SearchResultCount = styled.span({
+  display: "block",
+  marginTop: "1em",
+  color: "grey"
+});
 const TranscriptItem = styled.div({
   width: "100%",
   margin: "1em 0"
@@ -22,7 +32,26 @@ const SeekVideoButton = styled(Button)({
   display: "block !important",
   marginTop: "1em !important"
 });
-const Pane = styled(Tab.Pane)({});
+const ScrollGridRow = styled(Grid.Row)({
+  overflowY: "scroll",
+  maxHeight: "500px"
+});
+const ScrollDiv = styled.div({
+  overflowY: "scroll",
+  maxHeight: "275px",
+  marginTop: "1em"
+});
+const Timestamp = styled.span({
+  display: "block",
+  color: "grey",
+  fontWeight: "700"
+});
+
+const Pane = styled(Tab.Pane)({
+  border: "none !important",
+  boxShadow: "none !important",
+  WebkitBoxShadow: "none !important"
+});
 
 const Event = ({
   id,
@@ -67,12 +96,15 @@ const Event = ({
       menuItem: "Full Transcript",
       render: () => (
         <Pane attached={false}>
-          <Grid.Row>
+          <ScrollGridRow>
             {/* TODO: add start_time and endTime */}
-            {transcript.map(({ text }) => (
-              <p>{text}</p>
+            {transcript.map(({ text, start_time }) => (
+              <React.Fragment>
+                <Timestamp>{hhmmss(start_time)}</Timestamp>
+                <p>{text}</p>
+              </React.Fragment>
             ))}
-          </Grid.Row>
+          </ScrollGridRow>
         </Pane>
       )
     }
@@ -97,22 +129,33 @@ const Event = ({
             value={transcriptSearchText}
             placeholder="Search transcript"
           />
-          {/* TODO: handle no results */}
-          {transcriptSearchText !== "" ? (
-            transcriptItems.map(({ text, start_time }) => (
-              <TranscriptItem>
-                <TranscriptItemText
-                  searchWords={[transcriptSearchText]}
-                  autoEscape={true}
-                  textToHighlight={text}
-                />
+          {transcriptSearchText !== "" && (
+            <SearchResultCount>
+              {transcriptItems.length} results
+            </SearchResultCount>
+          )}
+          {transcriptSearchText !== "" && (
+            <ScrollDiv>
+              {transcriptItems.map(({ text, start_time }) => (
+                <TranscriptItem>
+                  <Timestamp>{hhmmss(start_time)}</Timestamp>
+                  <TranscriptItemText
+                    searchWords={[transcriptSearchText]}
+                    autoEscape={true}
+                    textToHighlight={text}
+                  />
+                  <SeekVideoButton
+                    primary
+                    onClick={() => handleSeek(start_time)}
+                  >
+                    Jump to this point in video
+                  </SeekVideoButton>
+                </TranscriptItem>
+              ))}
+            </ScrollDiv>
+          )}
 
-                <SeekVideoButton primary onClick={() => handleSeek(start_time)}>
-                  Jump to this point in video
-                </SeekVideoButton>
-              </TranscriptItem>
-            ))
-          ) : (
+          {transcriptSearchText === "" && (
             <TranscriptSearchHelpMessage>
               Enter a search term to get results.
             </TranscriptSearchHelpMessage>
