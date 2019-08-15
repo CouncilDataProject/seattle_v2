@@ -123,7 +123,7 @@ const Event = ({
   ];
 
   return (
-    <Grid>
+    <Grid stackable>
       {/* TODO: move this inline styling */}
       <Grid.Row style={{ padding: "0 14px" }}>
         <Title>{title}</Title>
