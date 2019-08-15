@@ -8,7 +8,8 @@ const Layout = styled(Container)({
 });
 
 const ContentContainer = styled(Container)({
-  margin: "2em !important"
+  marginTop: "2em !important",
+  marginBottom: "5em !important"
 });
 
 const EventPage = ({ match }) => {
