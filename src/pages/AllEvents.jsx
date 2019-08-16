@@ -16,6 +16,7 @@ const AllEventsPage = () => {
   return (
     <Layout>
       <ContentContainer>
+        <h2>All Events</h2>
         <AllEvents />
       </ContentContainer>
     </Layout>

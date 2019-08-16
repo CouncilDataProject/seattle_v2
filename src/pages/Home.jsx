@@ -21,9 +21,14 @@ const StyledGrid = styled(Grid)({
   marginTop: "150px !important"
 });
 
-const HomePage = () => {
-  const [searchQuery, setSearchQuery] = React.useState();
+const HomePage = props => {
+  const [searchQuery, setSearchQuery] = React.useState("");
 
+  const handleKeyPress = event => {
+    if (event.key === "Enter") {
+      props.history.push(`/search?q=${searchQuery}`);
+    }
+  };
   const handleSearch = async (e, { value }) => {
     setSearchQuery(value);
   };
@@ -40,6 +45,7 @@ const HomePage = () => {
               placeholder="Enter a keyword to search meeting transcripts"
               value={searchQuery}
               onChange={handleSearch}
+              onKeyPress={handleKeyPress}
             />
             <Button
               attached="right"
