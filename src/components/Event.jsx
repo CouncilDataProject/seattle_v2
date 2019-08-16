@@ -52,7 +52,7 @@ const Timestamp = styled(Button)({
   padding: "5px 8px !important",
   marginBottom: "8px !important",
   marginTop: "8px !important",
-  display: "block"
+  display: "block !important"
 });
 const StyledTab = styled(Tab)({
   "a.item": {
@@ -92,6 +92,11 @@ const Event = ({
 
   const handleSeek = seconds => {
     videoPlayerRef.current.seekTo(parseFloat(seconds));
+    window.scroll({
+      top: 0,
+      left: 0,
+      behavior: "smooth"
+    });
   };
 
   const panes = [
@@ -181,7 +186,7 @@ const Event = ({
               {transcriptItems.length} results
             </SearchResultCount>
           )}
-          {transcriptSearchText !== "" && (
+          {transcriptSearchText !== "" && transcriptItems.length > 0 && (
             <ScrollDiv>
               {transcriptItems.map(({ text, start_time }) => (
                 <TranscriptItem>
