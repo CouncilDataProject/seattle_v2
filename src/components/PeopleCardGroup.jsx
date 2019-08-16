@@ -1,5 +1,4 @@
 import React, { Fragment } from 'react'
-// import { Card } from "semantic-ui-react"
 import { withRouter } from "react-router-dom"
 import styled from "@emotion/styled";
 
@@ -25,8 +24,7 @@ const Card = styled('div')({
 
 const CardHeading = styled('h5')({
     fontWeight: 600,
-    fontSize: '1.2rem',
-    textAlign: 'left'
+    fontSize: '1.2rem'
 })
 
 
