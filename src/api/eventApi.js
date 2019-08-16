@@ -1,7 +1,17 @@
 import * as firebase from "firebase";
+import moment from "moment";
+import natural from "natural";
+import {
+  flatten,
+  uniqBy,
+  sortBy,
+  reverse,
+  groupBy,
+  mapValues,
+  filter
+} from "lodash";
 import { getAllResources, getSingleResource, getResourceById } from "./baseApi";
 import { fetchJson } from "./utils";
-import moment from "moment";
 
 const storage = firebase.storage();
 
@@ -189,6 +199,52 @@ export async function getBasicEventById(id) {
         .utc(event.event_datetime.toDate())
         .format("MM-DD-YYYY HH:MM:SS")
     };
+  } catch (e) {
+    return Promise.reject(e);
+  }
+}
+
+export async function getEventsByIndexedTerm(term) {
+  const valueMin = 10;
+  try {
+    natural.PorterStemmer.attach();
+
+    const stemmedTokens = term.tokenizeAndStem();
+
+    // get matches for each term
+    const matches = await Promise.all(
+      stemmedTokens.map(stemmedToken =>
+        getSingleResource("indexed_event_term", "term", stemmedToken)
+      )
+    );
+
+    // create a map of event id to object with id and sum of match values
+    const summedMatchValueByEventId = mapValues(
+      groupBy(flatten(matches), match => match.event_id),
+      (eventTermMatches, key) =>
+        eventTermMatches.reduce(
+          (current, item) => ({
+            ...current,
+            value: current.value + item.value
+          }),
+          { event_id: key, value: 0 }
+        )
+    );
+
+    // reverse to get highest value first
+    const sortedSummedMatches = reverse(
+      sortBy(
+        filter(summedMatchValueByEventId, ({ value }) => value >= valueMin),
+        ({ value }) => value
+      )
+    );
+
+    // fetch events in order of value and return
+    const events = await Promise.all(
+      sortedSummedMatches.map(({ event_id }) => getBasicEventById(event_id))
+    );
+
+    return events;
   } catch (e) {
     return Promise.reject(e);
   }
