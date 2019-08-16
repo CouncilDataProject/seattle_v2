@@ -1,15 +1,7 @@
 import * as firebase from "firebase";
 import moment from "moment";
 import natural from "natural";
-import {
-  flatten,
-  uniqBy,
-  sortBy,
-  reverse,
-  groupBy,
-  mapValues,
-  filter
-} from "lodash";
+import { flatten, sortBy, reverse, groupBy, mapValues, filter } from "lodash";
 import { getAllResources, getSingleResource, getResourceById } from "./baseApi";
 import { fetchJson } from "./utils";
 
@@ -47,6 +39,11 @@ export async function getEventMinutesItem(eventMinutesItemId) {
       index
     } = await getResourceById("event_minutes_item", eventMinutesItemId);
     const minutesItem = await getResourceById("minutes_item", minutes_item_id);
+    const minutesItemFile = await getSingleResource(
+      "minutes_item_file",
+      "minutes_item_id",
+      minutes_item_id
+    );
 
     return {
       id: eventMinutesItemId,
@@ -56,7 +53,8 @@ export async function getEventMinutesItem(eventMinutesItemId) {
       index,
       minutes_item: {
         id: minutes_item_id,
-        ...minutesItem
+        ...minutesItem,
+        file: minutesItemFile
       }
     };
   } catch (e) {
@@ -177,7 +175,7 @@ export async function getEventById(id) {
       date: moment
         .utc(event.event_datetime.toDate())
         .format("MM-DD-YYYY HH:MM:SS"),
-      minutes: minutesItems,
+      minutes: sortBy(minutesItems, minuteItem => minuteItem.index),
       transcript: transcript.data,
       scPageUrl: event.source_uri
     };

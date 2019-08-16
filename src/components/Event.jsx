@@ -1,64 +1,77 @@
 import React from "react";
-import { Grid, Input, Button, Tab } from "semantic-ui-react";
+import { Grid, Input, Button, Tab, List, Icon } from "semantic-ui-react";
 import EventVotingPane from "../containers/EventVotingPane";
 import ReactPlayer from "react-player";
 import Highlighter from "react-highlight-words";
+import moment from "moment";
 import styled from "@emotion/styled";
 import hhmmss from "../utils/hhmmss";
 
-const Title = styled.h1({ width: "100%" });
+const Title = styled.h1({ width: "100%", marginBottom: "5px !important" });
 const Date = styled.span({
   display: "block",
   color: "grey",
   fontWeight: "400"
 });
 const Subheader = styled.h2({ width: "100%" });
-const Description = styled.p({});
-const SearchInput = styled(Input)({ width: "100%" });
+const SearchInput = styled(Input)({
+  width: "100%",
+  fontSize: "16px !important",
+  lineHeight: "1.5 !important"
+});
 const SearchResultCount = styled.span({
   display: "block",
   marginTop: "1em",
-  color: "grey"
+  color: "grey",
+  paddingLeft: "15px"
 });
 const TranscriptItem = styled.div({
   width: "100%",
-  margin: "1em 0"
+  margin: "1em 0",
+  padding: "14px"
 });
-const TranscriptItemText = styled(Highlighter)({});
+const TranscriptItemText = styled(Highlighter)({
+  fontSize: "16px !important",
+  lineHeight: "1.5 !important"
+});
 const TranscriptSearchHelpMessage = styled.span({
   display: "block",
-  marginTop: "1em"
-});
-const SeekVideoButton = styled(Button)({
-  display: "block !important",
-  marginTop: "1em !important"
-});
-const ScrollGridRow = styled(Grid.Row)({
-  overflowY: "scroll",
-  maxHeight: "500px"
+  marginTop: "1em",
+  fontSize: "16px !important",
+  lineHeight: "1.5 !important",
+  paddingLeft: "15px"
 });
 const ScrollDiv = styled.div({
   overflowY: "scroll",
-  maxHeight: "275px",
-  marginTop: "1em"
+  maxHeight: "228px",
+  marginTop: "1em",
+  border: "1px solid lightgrey",
+  borderRadius: "0.28rem"
 });
-const Timestamp = styled.span({
-  display: "block",
-  color: "grey",
-  fontWeight: "700"
+const Timestamp = styled(Button)({
+  padding: "5px 8px !important",
+  marginBottom: "8px !important",
+  marginTop: "8px !important",
+  display: "block !important"
 });
-
+const StyledTab = styled(Tab)({
+  "a.item": {
+    fontSize: "20px !important"
+  }
+});
 const Pane = styled(Tab.Pane)({
   border: "none !important",
   boxShadow: "none !important",
-  WebkitBoxShadow: "none !important"
+  WebkitBoxShadow: "none !important",
+  fontSize: "16px !important",
+  lineHeight: "1.5 !important"
 });
 
 const Event = ({
   id,
   title,
   date,
-  description,
+  minutes,
   scPageUrl,
   videoUrl,
   transcript
@@ -79,6 +92,11 @@ const Event = ({
 
   const handleSeek = seconds => {
     videoPlayerRef.current.seekTo(parseFloat(seconds));
+    window.scroll({
+      top: 0,
+      left: 0,
+      behavior: "smooth"
+    });
   };
 
   const panes = [
@@ -87,27 +105,46 @@ const Event = ({
       render: () => (
         <Pane attached={false}>
           <Grid.Row>
-            <Description>{description}</Description>
-            <a href={scPageUrl}>Seattle Channel Event Page</a>
+            <h3>Minutes</h3>
+            <List ordered>
+              {minutes.map(({ minutes_item }, i) => (
+                <List.Item>{minutes_item.name}</List.Item>
+              ))}
+            </List>
+          </Grid.Row>
+          <Grid.Row style={{ marginTop: "1em" }}>
+            <h3>Links</h3>
+            <List>
+              <List.Item>
+                <a href={scPageUrl}>Seattle Channel Event Page</a>
+              </List.Item>
+            </List>
           </Grid.Row>
         </Pane>
       )
     },
     {
-      menuItem: "Full Transcript",
+      menuItem: "Transcript",
       render: () => (
         <Pane attached={false}>
-          <ScrollGridRow>
-            {/* TODO: add start_time and endTime */}
-            {transcript.map(({ text, start_time }, i) => (
-              <React.Fragment>
-                <Timestamp onClick={() => handleSeek(start_time)}>
-                  {hhmmss(start_time)}
-                </Timestamp>
-                <p>{text}</p>
-              </React.Fragment>
-            ))}
-          </ScrollGridRow>
+          {transcript.map(({ text, start_time }, i) => (
+            <Grid>
+              <Grid.Row>
+                <Grid.Column width="2">
+                  <Timestamp size="tiny" onClick={() => handleSeek(start_time)}>
+                    <Icon name="play" />
+                    {hhmmss(start_time)}
+                  </Timestamp>
+                </Grid.Column>
+                <Grid.Column width="14">
+                  <span style={{ display: "inline-block", paddingTop: "8px" }}>
+                    {text}
+                  </span>
+                </Grid.Column>
+              </Grid.Row>
+            </Grid>
+          ))}
+          <Grid.Row />
         </Pane>
       )
     },
@@ -130,7 +167,7 @@ const Event = ({
       {/* TODO: move this inline styling */}
       <Grid.Row style={{ padding: "0 14px" }}>
         <Title>{title}</Title>
-        <Date>{date}</Date>
+        <Date>Meeting Date: {moment(date).format("LLL")}</Date>
       </Grid.Row>
 
       <Grid.Row>
@@ -149,22 +186,19 @@ const Event = ({
               {transcriptItems.length} results
             </SearchResultCount>
           )}
-          {transcriptSearchText !== "" && (
+          {transcriptSearchText !== "" && transcriptItems.length > 0 && (
             <ScrollDiv>
               {transcriptItems.map(({ text, start_time }) => (
                 <TranscriptItem>
-                  <Timestamp>{hhmmss(start_time)}</Timestamp>
                   <TranscriptItemText
                     searchWords={[transcriptSearchText]}
                     autoEscape={true}
                     textToHighlight={text}
                   />
-                  <SeekVideoButton
-                    primary
-                    onClick={() => handleSeek(start_time)}
-                  >
-                    Jump to this point in video
-                  </SeekVideoButton>
+                  <Timestamp size="tiny" onClick={() => handleSeek(start_time)}>
+                    <Icon name="play" />
+                    {hhmmss(start_time)}
+                  </Timestamp>
                 </TranscriptItem>
               ))}
             </ScrollDiv>
@@ -177,7 +211,7 @@ const Event = ({
           )}
         </Grid.Column>
       </Grid.Row>
-      <Tab menu={{ secondary: true, pointing: true }} panes={panes} />
+      <StyledTab menu={{ secondary: true, pointing: true }} panes={panes} />
     </Grid>
   );
 };
