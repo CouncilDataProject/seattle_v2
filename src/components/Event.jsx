@@ -33,10 +33,6 @@ const SeekVideoButton = styled(Button)({
   display: "block !important",
   marginTop: "1em !important"
 });
-const ScrollGridRow = styled(Grid.Row)({
-  overflowY: "scroll",
-  maxHeight: "500px"
-});
 const ScrollDiv = styled.div({
   overflowY: "scroll",
   maxHeight: "275px",
@@ -59,6 +55,7 @@ const Event = ({
   title,
   date,
   description,
+  minutes,
   scPageUrl,
   videoUrl,
   transcript
@@ -97,7 +94,7 @@ const Event = ({
       menuItem: "Full Transcript",
       render: () => (
         <Pane attached={false}>
-          <ScrollGridRow>
+          <Grid.Row>
             {/* TODO: add start_time and endTime */}
             {transcript.map(({ text, start_time }, i) => (
               <React.Fragment>
@@ -107,7 +104,7 @@ const Event = ({
                 <p>{text}</p>
               </React.Fragment>
             ))}
-          </ScrollGridRow>
+          </Grid.Row>
         </Pane>
       )
     },

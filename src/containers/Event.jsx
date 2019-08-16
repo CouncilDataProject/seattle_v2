@@ -24,6 +24,7 @@ const EventContainer = ({ id }) => {
       description={event.description}
       scPageUrl={event.scPageUrl}
       videoUrl={event.videoUrl}
+      minutes={event.minutes}
       transcript={event.transcript}
     />
   ) : null;
