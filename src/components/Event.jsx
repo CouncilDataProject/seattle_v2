@@ -1,6 +1,6 @@
 import React from "react";
 import { Grid, Input, Button, Tab } from "semantic-ui-react";
-import EventVotingPane from '../containers/EventVotingPane'
+import EventVotingPane from "../containers/EventVotingPane";
 import ReactPlayer from "react-player";
 import Highlighter from "react-highlight-words";
 import styled from "@emotion/styled";
@@ -99,9 +99,11 @@ const Event = ({
         <Pane attached={false}>
           <ScrollGridRow>
             {/* TODO: add start_time and endTime */}
-            {transcript.map(({ text, start_time }) => (
+            {transcript.map(({ text, start_time }, i) => (
               <React.Fragment>
-                <Timestamp>{hhmmss(start_time)}</Timestamp>
+                <Timestamp onClick={() => handleSeek(start_time)}>
+                  {hhmmss(start_time)}
+                </Timestamp>
                 <p>{text}</p>
               </React.Fragment>
             ))}
@@ -113,12 +115,13 @@ const Event = ({
       menuItem: "Votes",
       render: () => {
         return (
-        <Pane attached={false}>
-          <Grid.Row>
-            <EventVotingPane eventId={id}/>
-          </Grid.Row>
-        </Pane>
-      )}
+          <Pane attached={false}>
+            <Grid.Row>
+              <EventVotingPane eventId={id} />
+            </Grid.Row>
+          </Pane>
+        );
+      }
     }
   ];
 

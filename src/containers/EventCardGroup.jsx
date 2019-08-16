@@ -1,10 +1,15 @@
 import React from "react";
 import { Input } from "semantic-ui-react";
+import styled from "@emotion/styled";
 import { getAllEvents, getBasicEventById } from "../api/eventApi";
 import EventCardGroup from "../components/EventCardGroup";
 import isSubstring from "../utils/isSubstring";
 
 const pagelimit = 10;
+const SearchBar = styled(Input)({
+  width: "50% !important",
+  margin: "1em 0 3em !important"
+});
 
 const EventCardGroupContainer = () => {
   const [searchQuery, setSearchQuery] = React.useState();
@@ -34,7 +39,7 @@ const EventCardGroupContainer = () => {
   }, []);
   return (
     <React.Fragment>
-      <Input
+      <SearchBar
         placeholder="Search by event name"
         value={searchQuery}
         onChange={handleSearch}
