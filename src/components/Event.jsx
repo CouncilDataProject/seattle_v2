@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, Input, Button, Tab } from "semantic-ui-react";
+import { Grid, Input, Button, Tab, List } from "semantic-ui-react";
 import EventVotingPane from "../containers/EventVotingPane";
 import ReactPlayer from "react-player";
 import Highlighter from "react-highlight-words";
@@ -13,8 +13,11 @@ const Date = styled.span({
   fontWeight: "400"
 });
 const Subheader = styled.h2({ width: "100%" });
-const Description = styled.p({});
-const SearchInput = styled(Input)({ width: "100%" });
+const SearchInput = styled(Input)({
+  width: "100%",
+  fontSize: "16px !important",
+  lineHeight: "1.5 !important"
+});
 const SearchResultCount = styled.span({
   display: "block",
   marginTop: "1em",
@@ -22,12 +25,18 @@ const SearchResultCount = styled.span({
 });
 const TranscriptItem = styled.div({
   width: "100%",
-  margin: "1em 0"
+  margin: "1em 0",
+  padding: "14px"
 });
-const TranscriptItemText = styled(Highlighter)({});
+const TranscriptItemText = styled(Highlighter)({
+  fontSize: "16px !important",
+  lineHeight: "1.5 !important"
+});
 const TranscriptSearchHelpMessage = styled.span({
   display: "block",
-  marginTop: "1em"
+  marginTop: "1em",
+  fontSize: "16px !important",
+  lineHeight: "1.5 !important"
 });
 const SeekVideoButton = styled(Button)({
   display: "block !important",
@@ -36,7 +45,8 @@ const SeekVideoButton = styled(Button)({
 const ScrollDiv = styled.div({
   overflowY: "scroll",
   maxHeight: "275px",
-  marginTop: "1em"
+  marginTop: "1em",
+  border: "1px solid lightgrey"
 });
 const Timestamp = styled.span({
   display: "block",
@@ -44,17 +54,24 @@ const Timestamp = styled.span({
   fontWeight: "700"
 });
 
+const StyledTab = styled(Tab)({
+  "a.item": {
+    fontSize: "20px !important"
+  }
+});
+
 const Pane = styled(Tab.Pane)({
   border: "none !important",
   boxShadow: "none !important",
-  WebkitBoxShadow: "none !important"
+  WebkitBoxShadow: "none !important",
+  fontSize: "16px !important",
+  lineHeight: "1.5 !important"
 });
 
 const Event = ({
   id,
   title,
   date,
-  description,
   minutes,
   scPageUrl,
   videoUrl,
@@ -84,8 +101,20 @@ const Event = ({
       render: () => (
         <Pane attached={false}>
           <Grid.Row>
-            <Description>{description}</Description>
-            <a href={scPageUrl}>Seattle Channel Event Page</a>
+            <h3>Minutes</h3>
+            <List ordered>
+              {minutes.map(({ minutes_item }, i) => (
+                <List.Item>{minutes_item.name}</List.Item>
+              ))}
+            </List>
+          </Grid.Row>
+          <Grid.Row style={{ marginTop: "1em" }}>
+            <h3>Links</h3>
+            <List>
+              <List.Item>
+                <a href={scPageUrl}>Seattle Channel Event Page</a>
+              </List.Item>
+            </List>
           </Grid.Row>
         </Pane>
       )
@@ -95,7 +124,6 @@ const Event = ({
       render: () => (
         <Pane attached={false}>
           <Grid.Row>
-            {/* TODO: add start_time and endTime */}
             {transcript.map(({ text, start_time }, i) => (
               <React.Fragment>
                 <Timestamp onClick={() => handleSeek(start_time)}>
@@ -174,7 +202,7 @@ const Event = ({
           )}
         </Grid.Column>
       </Grid.Row>
-      <Tab menu={{ secondary: true, pointing: true }} panes={panes} />
+      <StyledTab menu={{ secondary: true, pointing: true }} panes={panes} />
     </Grid>
   );
 };
