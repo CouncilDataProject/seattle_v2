@@ -3,10 +3,11 @@ import { Grid, Input, Button, Tab, List } from "semantic-ui-react";
 import EventVotingPane from "../containers/EventVotingPane";
 import ReactPlayer from "react-player";
 import Highlighter from "react-highlight-words";
+import moment from "moment";
 import styled from "@emotion/styled";
 import hhmmss from "../utils/hhmmss";
 
-const Title = styled.h1({ width: "100%" });
+const Title = styled.h1({ width: "100%", marginBottom: "5px !important" });
 const Date = styled.span({
   display: "block",
   color: "grey",
@@ -44,7 +45,7 @@ const SeekVideoButton = styled(Button)({
 });
 const ScrollDiv = styled.div({
   overflowY: "scroll",
-  maxHeight: "225px",
+  maxHeight: "228px",
   marginTop: "1em",
   border: "1px solid lightgrey",
   borderRadius: "0.28rem"
@@ -121,7 +122,7 @@ const Event = ({
       )
     },
     {
-      menuItem: "Full Transcript",
+      menuItem: "Transcript",
       render: () => (
         <Pane attached={false}>
           <Grid.Row>
@@ -156,7 +157,7 @@ const Event = ({
       {/* TODO: move this inline styling */}
       <Grid.Row style={{ padding: "0 14px" }}>
         <Title>{title}</Title>
-        <Date>{date}</Date>
+        <Date>Meeting Date: {moment(date).format("LLL")}</Date>
       </Grid.Row>
 
       <Grid.Row>
