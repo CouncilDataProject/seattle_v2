@@ -1,9 +1,12 @@
 import React from "react";
 import { Input } from "semantic-ui-react";
 import styled from "@emotion/styled";
-import { getAllEvents, getBasicEventById } from "../api/eventApi";
+import {
+  getAllEvents,
+  getBasicEventById,
+  getEventsByIndexedTerm
+} from "../api/eventApi";
 import EventCardGroup from "../components/EventCardGroup";
-import isSubstring from "../utils/isSubstring";
 
 const pagelimit = 10;
 const SearchBar = styled(Input)({
@@ -16,10 +19,11 @@ const EventCardGroupContainer = () => {
   const [events, setEvents] = React.useState([]);
   const [visibleEvents, setVisibleEvents] = React.useState([]);
 
-  const handleSearch = (e, { value }) => {
+  const handleSearch = async (e, { value }) => {
     setSearchQuery(value);
+    const matchedEvents = await getEventsByIndexedTerm(value);
     // filter all events by name and set visible event
-    setVisibleEvents(events.filter(({ name }) => isSubstring(name, value)));
+    setVisibleEvents(matchedEvents);
   };
 
   React.useEffect(() => {
