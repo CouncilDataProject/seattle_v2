@@ -1,5 +1,6 @@
 import React from "react";
 import { getEventById } from "../api/eventApi";
+import { Loader } from "semantic-ui-react";
 import Event from "../components/Event";
 
 const EventContainer = ({ id }) => {
@@ -27,7 +28,7 @@ const EventContainer = ({ id }) => {
       minutes={event.minutes}
       transcript={event.transcript}
     />
-  ) : null;
+  ) : <Loader active/>;
 };
 
 export default EventContainer;
