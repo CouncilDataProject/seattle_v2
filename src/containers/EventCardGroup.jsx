@@ -16,7 +16,6 @@ const SearchBar = styled(Input)({
 
 const EventCardGroupContainer = () => {
   const [searchQuery, setSearchQuery] = React.useState();
-  const [events, setEvents] = React.useState([]);
   const [visibleEvents, setVisibleEvents] = React.useState([]);
 
   const handleSearch = async (e, { value }) => {
@@ -26,21 +25,6 @@ const EventCardGroupContainer = () => {
     setVisibleEvents(matchedEvents);
   };
 
-  React.useEffect(() => {
-    // Fetch events once
-    try {
-      (async () => {
-        const allEvents = await getAllEvents();
-        const basicEventData = await Promise.all(
-          allEvents.map(({ id }) => getBasicEventById(id))
-        );
-        setEvents(basicEventData);
-        setVisibleEvents(basicEventData.slice(0, pagelimit));
-      })();
-    } catch (e) {
-      // log and display error message
-    }
-  }, []);
   return (
     <React.Fragment>
       <SearchBar
