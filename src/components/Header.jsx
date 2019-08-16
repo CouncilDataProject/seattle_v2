@@ -12,6 +12,7 @@ const HeadingTab = styled("span")({
   ":hover": {
     backgroundColor: "#F5F5F5",
     color: "black"
+
   }
 });
 
