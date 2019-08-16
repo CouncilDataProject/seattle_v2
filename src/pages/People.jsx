@@ -1,6 +1,7 @@
 import React from "react";
 import { Container } from "semantic-ui-react";
 import styled from "@emotion/styled";
+import PeopleCardGroupContainer from '../containers/PeopleCardGroupContainer';
 
 // TODO: duplicate from Home, move to utils
 const Layout = styled(Container)({
@@ -16,9 +17,9 @@ const ContentContainer = styled(Container)({
 const People = () => {
     return (
         <Layout>
-        <ContentContainer>
-            <div>people container here</div>
-        </ContentContainer>
+            <ContentContainer>
+                <PeopleCardGroupContainer />
+            </ContentContainer>
         </Layout>
     );
 }
