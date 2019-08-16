@@ -1,7 +1,15 @@
 import * as firebase from "firebase";
 import moment from "moment";
 import natural from "natural";
-import { flatten, uniqBy, sortBy, reverse, groupBy, mapValues } from "lodash";
+import {
+  flatten,
+  uniqBy,
+  sortBy,
+  reverse,
+  groupBy,
+  mapValues,
+  filter
+} from "lodash";
 import { getAllResources, getSingleResource, getResourceById } from "./baseApi";
 import { fetchJson } from "./utils";
 
@@ -197,6 +205,7 @@ export async function getBasicEventById(id) {
 }
 
 export async function getEventsByIndexedTerm(term) {
+  const valueMin = 10;
   try {
     natural.PorterStemmer.attach();
 
@@ -224,7 +233,10 @@ export async function getEventsByIndexedTerm(term) {
 
     // reverse to get highest value first
     const sortedSummedMatches = reverse(
-      sortBy(summedMatchValueByEventId, ({ value }) => value)
+      sortBy(
+        filter(summedMatchValueByEventId, ({ value }) => value >= valueMin),
+        ({ value }) => value
+      )
     );
 
     // fetch events in order of value and return
