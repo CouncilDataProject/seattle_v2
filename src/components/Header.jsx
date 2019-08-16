@@ -9,6 +9,7 @@ const HeadingTab = styled('span')({
   transition: '.8s all',
   borderRadius: '5px',
   padding: '1rem .5rem',
+  marginLeft: '-.5rem',
   ':hover': {
     backgroundColor: '#F5F5F5',
     color: 'black'
