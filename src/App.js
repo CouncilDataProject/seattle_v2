@@ -5,6 +5,8 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Search from "./pages/Search";
 import Event from "./pages/Event";
+import People from "./pages/People";
+import Person from "./pages/Person";
 
 const App = () => (
   <Router>
@@ -13,6 +15,8 @@ const App = () => (
       <Route exact path="/" component={Home} />
       <Route path="/search" component={Search} />
       <Route path="/events/:id" component={Event} />
+      <Route exact path="/people" component={People} />
+      <Route exact path="/people/:id" component={Person} />
     </Switch>
     <Footer />
   </Router>
