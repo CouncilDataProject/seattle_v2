@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, Input, Button, Tab, List } from "semantic-ui-react";
+import { Grid, Input, Button, Tab, List, Icon } from "semantic-ui-react";
 import EventVotingPane from "../containers/EventVotingPane";
 import ReactPlayer from "react-player";
 import Highlighter from "react-highlight-words";
@@ -22,7 +22,8 @@ const SearchInput = styled(Input)({
 const SearchResultCount = styled.span({
   display: "block",
   marginTop: "1em",
-  color: "grey"
+  color: "grey",
+  paddingLeft: "15px"
 });
 const TranscriptItem = styled.div({
   width: "100%",
@@ -37,11 +38,8 @@ const TranscriptSearchHelpMessage = styled.span({
   display: "block",
   marginTop: "1em",
   fontSize: "16px !important",
-  lineHeight: "1.5 !important"
-});
-const SeekVideoButton = styled(Button)({
-  display: "block !important",
-  marginTop: "1em !important"
+  lineHeight: "1.5 !important",
+  paddingLeft: "15px"
 });
 const ScrollDiv = styled.div({
   overflowY: "scroll",
@@ -50,18 +48,16 @@ const ScrollDiv = styled.div({
   border: "1px solid lightgrey",
   borderRadius: "0.28rem"
 });
-const Timestamp = styled.span({
-  display: "block",
-  color: "grey",
-  fontWeight: "700"
+const Timestamp = styled(Button)({
+  padding: "5px 8px !important",
+  marginBottom: "8px !important",
+  marginTop: "8px !important"
 });
-
 const StyledTab = styled(Tab)({
   "a.item": {
     fontSize: "20px !important"
   }
 });
-
 const Pane = styled(Tab.Pane)({
   border: "none !important",
   boxShadow: "none !important",
@@ -128,7 +124,8 @@ const Event = ({
           <Grid.Row>
             {transcript.map(({ text, start_time }, i) => (
               <React.Fragment>
-                <Timestamp onClick={() => handleSeek(start_time)}>
+                <Timestamp size="tiny" onClick={() => handleSeek(start_time)}>
+                  <Icon name="play" />
                   {hhmmss(start_time)}
                 </Timestamp>
                 <p>{text}</p>
@@ -180,18 +177,15 @@ const Event = ({
             <ScrollDiv>
               {transcriptItems.map(({ text, start_time }) => (
                 <TranscriptItem>
-                  <Timestamp>{hhmmss(start_time)}</Timestamp>
                   <TranscriptItemText
                     searchWords={[transcriptSearchText]}
                     autoEscape={true}
                     textToHighlight={text}
                   />
-                  <SeekVideoButton
-                    primary
-                    onClick={() => handleSeek(start_time)}
-                  >
-                    Jump to this point in video
-                  </SeekVideoButton>
+                  <Timestamp size="tiny" onClick={() => handleSeek(start_time)}>
+                    <Icon name="play" />
+                    {hhmmss(start_time)}
+                  </Timestamp>
                 </TranscriptItem>
               ))}
             </ScrollDiv>
