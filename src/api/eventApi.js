@@ -203,7 +203,7 @@ export async function getBasicEventById(id) {
 }
 
 export async function getEventsByIndexedTerm(term) {
-  const valueMin = 10;
+  const valueMin = 0;
   try {
     natural.PorterStemmer.attach();
 
