@@ -44,9 +44,10 @@ const SeekVideoButton = styled(Button)({
 });
 const ScrollDiv = styled.div({
   overflowY: "scroll",
-  maxHeight: "275px",
+  maxHeight: "225px",
   marginTop: "1em",
-  border: "1px solid lightgrey"
+  border: "1px solid lightgrey",
+  borderRadius: "0.28rem"
 });
 const Timestamp = styled.span({
   display: "block",
