@@ -8,15 +8,24 @@ import {
 } from "../api/eventApi";
 import EventCardGroup from "../components/EventCardGroup";
 
-const pagelimit = 10;
 const SearchBar = styled(Input)({
   width: "50% !important",
   margin: "1em 0 3em !important"
 });
 
-const EventCardGroupContainer = () => {
-  const [searchQuery, setSearchQuery] = React.useState();
+const EventCardGroupContainer = ({ query }) => {
+  const [searchQuery, setSearchQuery] = React.useState(query);
   const [visibleEvents, setVisibleEvents] = React.useState([]);
+
+  React.useEffect(() => {
+    (async () => {
+      if (searchQuery) {
+        const matchedEvents = await getEventsByIndexedTerm(searchQuery);
+        // filter all events by name and set visible event
+        setVisibleEvents(matchedEvents);
+      }
+    })();
+  }, []);
 
   const handleSearch = async (e, { value }) => {
     setSearchQuery(value);
