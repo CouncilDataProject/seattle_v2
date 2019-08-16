@@ -26,6 +26,11 @@ export async function getVotesForPerson(personId){
         const formattedVote = {
             ...voteData,
             ...minuteItem,
+            // what this person voted
+            voteForPerson: voteData.decision,
+            // what the coucile decided
+            decision: eventMinuteItem.decision,
+            eventId: eventMinuteItem.event_id,
             // file
         }
        formattedVotes.push(formattedVote)

@@ -14,9 +14,8 @@ const PersonContainer = ({ match: { params: { id }} }) => {
         }
         fetchData()
     }, [id])
-    console.log('personHistory', personHistory)
     if(!personHistory) {
-        return <Loader />
+        return <Loader active/>
     }
     return (
         <Person personHistory={personHistory}/>
