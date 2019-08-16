@@ -51,7 +51,8 @@ const ScrollDiv = styled.div({
 const Timestamp = styled(Button)({
   padding: "5px 8px !important",
   marginBottom: "8px !important",
-  marginTop: "8px !important"
+  marginTop: "8px !important",
+  display: "block"
 });
 const StyledTab = styled(Tab)({
   "a.item": {
@@ -121,17 +122,24 @@ const Event = ({
       menuItem: "Transcript",
       render: () => (
         <Pane attached={false}>
-          <Grid.Row>
-            {transcript.map(({ text, start_time }, i) => (
-              <React.Fragment>
-                <Timestamp size="tiny" onClick={() => handleSeek(start_time)}>
-                  <Icon name="play" />
-                  {hhmmss(start_time)}
-                </Timestamp>
-                <p>{text}</p>
-              </React.Fragment>
-            ))}
-          </Grid.Row>
+          {transcript.map(({ text, start_time }, i) => (
+            <Grid>
+              <Grid.Row>
+                <Grid.Column width="2">
+                  <Timestamp size="tiny" onClick={() => handleSeek(start_time)}>
+                    <Icon name="play" />
+                    {hhmmss(start_time)}
+                  </Timestamp>
+                </Grid.Column>
+                <Grid.Column width="14">
+                  <span style={{ display: "inline-block", paddingTop: "8px" }}>
+                    {text}
+                  </span>
+                </Grid.Column>
+              </Grid.Row>
+            </Grid>
+          ))}
+          <Grid.Row />
         </Pane>
       )
     },
