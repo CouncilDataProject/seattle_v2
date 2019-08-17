@@ -10,7 +10,7 @@ const EventCardGroup = ({ events }) => {
           name={name}
           date={date}
           description={description}
-          link={`/events/${id}`}
+          link={`/seattle/events/${id}`}
         />
       ))}
     </Card.Group>

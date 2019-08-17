@@ -39,7 +39,7 @@ const VotingTable = ({ votingData, isPerson }) => (
     <Table striped>
         <Table.Header>
             <Table.Row>
-                {Headers.map(headerMetaData => (<Table.HeaderCell 
+                {Headers.map(headerMetaData => (<Table.HeaderCell
                     key={headerMetaData.text}
                     width={headerMetaData.width}>{headerMetaData.text}
                     </Table.HeaderCell>
@@ -81,11 +81,11 @@ const VotingTable = ({ votingData, isPerson }) => (
                                     {votingDatum.voteForPerson}
                                 </Table.Cell>
                                 <Table.Cell>
-                                    <Link to={`/events/${votingDatum.eventId}`}>
+                                    <Link to={`/seattle/events/${votingDatum.eventId}`}>
                                         <Icon name="linkify"/>
                                     </Link>
                                 </Table.Cell>
-                            </React.Fragment>  
+                            </React.Fragment>
                             )
                         }
                     })}

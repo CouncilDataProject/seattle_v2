@@ -35,8 +35,8 @@ const PeopleCardGroup = ({ people, history }) => {
             <FlexWrapContainer>
                 {people.map(({ full_name, email, id }) => (
                     <Card
-                        key={full_name} 
-                        onClick={() => history.push(`/people/${id}`)}>
+                        key={full_name}
+                        onClick={() => history.push(`/seattle/people/${id}`)}>
                         <CardHeading>{full_name}</CardHeading>
                         <p>City Council Member</p>
                         <a href={`mailto:${email}`}>{email}</a>

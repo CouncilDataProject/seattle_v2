@@ -26,7 +26,7 @@ const HomePage = props => {
 
   const handleKeyPress = event => {
     if (event.key === "Enter") {
-      props.history.push(`/search?q=${searchQuery}`);
+      props.history.push(`/seattle/search?q=${searchQuery}`);
     }
   };
   const handleSearch = async (e, { value }) => {
@@ -51,7 +51,7 @@ const HomePage = props => {
               attached="right"
               primary
               as={Link}
-              to={`/search?q=${searchQuery}`}
+              to={`/seattle/search?q=${searchQuery}`}
             >
               Search
             </Button>
