@@ -13,12 +13,12 @@ const App = () => (
   <Router basename="/">
     <Header />
     <Switch>
-      <Route exact path="/seattle/" component={Home} />
-      <Route path="/seattle/search" component={Search} />
-      <Route exact path="/seattle/events" component={AllEvents} />
-      <Route path="/seattle/events/:id" component={Event} />
-      <Route exact path="/seattle/people" component={People} />
-      <Route exact path="/seattle/people/:id" component={Person} />
+      <Route exact path="/" component={Home} />
+      <Route path="/search" component={Search} />
+      <Route exact path="/events" component={AllEvents} />
+      <Route path="/events/:id" component={Event} />
+      <Route exact path="/people" component={People} />
+      <Route exact path="/people/:id" component={Person} />
     </Switch>
     <Footer />
   </Router>
