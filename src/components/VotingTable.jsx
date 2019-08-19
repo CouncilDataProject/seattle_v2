@@ -81,7 +81,7 @@ const VotingTable = ({ votingData, isPerson }) => (
                                     {votingDatum.voteForPerson}
                                 </Table.Cell>
                                 <Table.Cell>
-                                    <Link to={`/seattle/events/${votingDatum.eventId}`}>
+                                    <Link to={`/events/${votingDatum.eventId}`}>
                                         <Icon name="linkify"/>
                                     </Link>
                                 </Table.Cell>

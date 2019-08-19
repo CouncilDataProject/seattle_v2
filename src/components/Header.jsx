@@ -20,17 +20,17 @@ const Header = () => (
   <React.Fragment>
     <Segment vertical>
       <Container>
-        <Link to="/seattle">
+        <Link to="/">
           <Brand>Council Data Project</Brand>
         </Link>
       </Container>
     </Segment>
     <Segment vertical>
       <Container>
-        <Link to="/seattle/events">
+        <Link to="/events">
           <HeadingTab>Events</HeadingTab>
         </Link>
-        <Link to="/seattle/people">
+        <Link to="/people">
           <HeadingTab style={{ marginLeft: "10px" }}>People</HeadingTab>
         </Link>
       </Container>
