@@ -2,7 +2,7 @@
   "name": "cdp-frontend",
   "version": "2.0.0",
   "homepage": "http://councildataproject.github.io/seattle",
-  "license" : "BSD-3-Clause",
+  "license": "BSD-3-Clause",
   "dependencies": {
     "@emotion/core": "^10.0.15",
     "@emotion/styled": "^10.0.15",
