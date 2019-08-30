@@ -10,6 +10,7 @@ import Event from "./pages/Event";
 import AllEvents from "./pages/AllEvents";
 import People from "./pages/People";
 import Person from "./pages/Person";
+import { db } from "./api/database";
 
 // Run Google Analytics
 ReactGA.initialize("UA-145893191-1");

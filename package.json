@@ -6,6 +6,7 @@
   "dependencies": {
     "@emotion/core": "^10.0.15",
     "@emotion/styled": "^10.0.15",
+    "eslint": "^6.2.2",
     "eslint-utils": "^1.4.2",
     "firebase": "^6.3.5",
     "lodash": "^4.17.15",
@@ -46,6 +47,7 @@
     ]
   },
   "devDependencies": {
+    "assert": "^2.0.0",
     "gh-pages": "^2.1.1"
   }
 }
