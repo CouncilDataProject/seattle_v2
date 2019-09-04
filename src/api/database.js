@@ -18,7 +18,11 @@ export class WhereCondition {
     *   The `operator` is optional in both cases and if left out, will default to equals.
     */
     constructor(filter) {
-        const errMessage = `Unsure how to create WhereCondition from received data: ${filter}`;
+        const generalErr = new Error(`Unsure how to create WhereCondition from received data: ${filter}`);
+        const wrongOpErr = new Error(`
+            Unknown WhereCondition operator: ${filter[1]}
+            Allowed WhereCondition operators: ${Object.values(WHERE_OPERATORS)}
+        `);
 
         // Handle array
         if (filter instanceof Array) {
@@ -36,36 +40,36 @@ export class WhereCondition {
                     this.operator = filter[1];
                     this.value = filter[2];
                 } else {
-                    throw `
-                        Unknown WhereCondition operator: ${filter[1]}
-                        Allowed WhereCondition operators: ${Object.values(WHERE_OPERATORS)}
-                    `;
+                    throw wrongOpErr;
                 };
             // Log error in any other case
             } else {
-                throw errMessage;
+                throw generalErr;
             };
         } else if (filter instanceof Object) {
             // All attributes present and operator is valid
             if (
                 filter.columnName &&
                 filter.operator &&
-                Object.values(WHERE_OPERATORS).includes(filter[1]) &&
                 filter.value
             ) {
-                this.columnName = filter.columnName;
-                this.operator = filter.operator;
-                this.value = filter.value;
+                if (Object.values(WHERE_OPERATORS).includes(filter.operator)) {
+                    this.columnName = filter.columnName;
+                    this.operator = filter.operator;
+                    this.value = filter.value;
+                } else {
+                    throw wrongOpErr;
+                };
             // Only column name and value attributes present, assume equal operator
             } else if (filter.columnName && filter.value) {
                 this.columnName = filter.columnName;
                 this.operator = WHERE_OPERATORS.eq;
                 this.value = filter.value;
             } else {
-                throw errMessage;
+                throw generalErr;
             };
         } else {
-            throw errMessage;
+            throw generalErr;
         };
     };
 };
