@@ -1,5 +1,6 @@
 import firebase from "firebase/app";
 import "firebase/firestore";
+import { isString } from "./utils";
 
 export const WHERE_OPERATORS = {
     eq: "==",
@@ -10,21 +11,22 @@ export const WHERE_OPERATORS = {
     lteq: "<=",
 };
 
+export const ORDER_OPERATORS = {
+    asc: "ASCENDING",
+    desc: "DESCENDING"
+};
+
 export class WhereCondition {
     /**
     * @param {(Object|Array)} filter The object or array to use to create a WhereCondition from.
     *   When provided an Array, the array should be ordered like so [`columnName`, optional: `operator`, `value`].
-    *   When provided an Object, the object must have `columnName` and `value` attributes.
-    *   The `operator` is optional in both cases and if left out, will default to equals.
+    *   When provided an Object, the object must have `columnName` and `value` attributes, and, optional `operator`
+    *   attributes. The `operator` is optional in both cases and if left out, will default to value equality.
     */
     constructor(filter) {
         const generalErr = new Error(`Unsure how to create WhereCondition from received data: ${filter}`);
-        const wrongOpErr = new Error(`
-            Unknown WhereCondition operator: ${filter[1]}
-            Allowed WhereCondition operators: ${Object.values(WHERE_OPERATORS)}
-        `);
 
-        // Handle array
+        // Handle array and object
         if (filter instanceof Array) {
             // Array two items long, assume equal operator
             if (filter.length === 2) {
@@ -40,7 +42,10 @@ export class WhereCondition {
                     this.operator = filter[1];
                     this.value = filter[2];
                 } else {
-                    throw wrongOpErr;
+                    throw new Error(`
+                        Unknown WhereCondition operator: ${filter[1]}
+                        Allowed WhereCondition operators: ${Object.values(WHERE_OPERATORS)}
+                    `);
                 };
             // Log error in any other case
             } else {
@@ -58,13 +63,82 @@ export class WhereCondition {
                     this.operator = filter.operator;
                     this.value = filter.value;
                 } else {
-                    throw wrongOpErr;
+                    throw new Error(`
+                        Unknown WhereCondition operator: ${filter.operator}
+                        Allowed WhereCondition operators: ${Object.values(WHERE_OPERATORS)}
+                    `);
                 };
             // Only column name and value attributes present, assume equal operator
             } else if (filter.columnName && filter.value) {
                 this.columnName = filter.columnName;
                 this.operator = WHERE_OPERATORS.eq;
                 this.value = filter.value;
+            } else {
+                throw generalErr;
+            };
+        } else {
+            throw generalErr;
+        };
+    };
+};
+
+export class OrderCondition {
+    /**
+    * @param {(Object|Array|String)} order The object, array, or string to use to create an OrderCondition from.
+    *   When provided an Array, the array should be ordered like so [`columnName`, optional: `operator`].
+    *   When provided an Object, the object must have `columnName`, and, optional `operator` attributes.
+    *   The `operator` is optional in both cases and if left out, will default to `descending`.
+    *   When provided a String, the string is simply the `columnName` for the OrderCondition, as the `operator` will
+    *   default to `descending`.
+    */
+    constructor(by) {
+        const generalErr = new Error(`Unsure how to create OrderCondition from received data: ${by}`);
+
+        // Handle string, array, and object
+        if (isString(by)) {
+            this.columnName = by;
+            this.operator = ORDER_OPERATORS.desc;
+        } else if (by instanceof Array) {
+            // Array single item long, assume descending operator
+            if (by.length === 1) {
+                this.columnName = by[0];
+                this.operator = ORDER_OPERATORS.desc;
+            // Array of two items long, check order
+            } else if (by.length === 2) {
+                // Check proper order by ensuring an approved operator is included at index one
+                if (Object.values(ORDER_OPERATORS).includes(by[1])) {
+                    // Unpack contents
+                    this.columnName = by[0];
+                    this.operator = by[1];
+                } else {
+                    throw new Error(`
+                        Unknown OrderCondition operator: ${by[1]}
+                        Allowed OrderCondition operators: ${Object.values(ORDER_OPERATORS)}
+                    `);
+                };
+            // Log error in any other case
+            } else {
+                throw generalErr;
+            };
+        } else if (by instanceof Object) {
+            // All attributes present and operator is valid
+            if (
+                by.columnName &&
+                by.operator
+            ) {
+                if (Object.values(ORDER_OPERATORS).includes(by.operator)) {
+                    this.columnName = by.columnName;
+                    this.operator = by.operator;
+                } else {
+                    throw new Error(`
+                        Unknown OrderCondition operator: ${by.operator}
+                        Allowed OrderCondition operators: ${Object.values(ORDER_OPERATORS)}
+                    `);
+                };
+            // Only column name, assume descending operator
+            } else if (by.columnName) {
+                this.columnName = by.columnName;
+                this.operator = ORDER_OPERATORS.desc;
             } else {
                 throw generalErr;
             };
@@ -111,7 +185,7 @@ class Database {
     * @param {array} queryResults The results returned from a query to the database
     * @return {array} The formatted query results
     */
-    async formatQueryResults(queryResults) {
+    async _unpackQueryResults(queryResults) {
         const results = [];
         queryResults.forEach(doc => {
             const data = doc.data();
