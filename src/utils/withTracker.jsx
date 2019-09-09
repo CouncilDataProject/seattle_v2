@@ -15,7 +15,7 @@ export default function withTracker(WrappedComponent, options = {}) {
       trackPage(window.location.hash.substr(1));
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentDidUpdate(nextProps) {
       const currentPage = this.props.location.pathname;
       const nextPage = nextProps.location.pathname;
 
