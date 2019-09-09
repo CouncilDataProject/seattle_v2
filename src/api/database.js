@@ -84,7 +84,7 @@ export class WhereCondition {
 
 export class OrderCondition {
     /**
-    * @param {(Object|Array|String)} order The object, array, or string to use to create an OrderCondition from.
+    * @param {(Object|Array|string)} order The object, array, or string to use to create an OrderCondition from.
     *   When provided an Array, the array should be ordered like so [`columnName`, optional: `operator`].
     *   When provided an Object, the object must have `columnName`, and, optional `operator` attributes.
     *   The `operator` is optional in both cases and if left out, will default to `descending`.
@@ -150,7 +150,7 @@ export class OrderCondition {
 
 class Database {
     /**
-    * @param {object} credentials An object that contains all reqired information to interact with a CDP database
+    * @param {Object} credentials An object that contains all reqired information to interact with a CDP database.
     */
     constructor(credentials) {
         // Store for save keeping
@@ -164,14 +164,14 @@ class Database {
     };
 
     /**
-    * @param {string} tableName The name of which table you want to request results from
-    * @param {string} id The id for the row you want to retrieve
-    * @return {object} If the row was found, the row's contents are returned as an object
+    * @param {string} table The name of the table (collection) you want to request results from.
+    * @param {string} id The id for the row you want to retrieve.
+    * @return {Object} If the row was found, the row's contents are returned as an object.
     */
-    async selectRowById(tableName, id) {
+    async selectRowById(table, id) {
         try {
             const res = await this.connection
-                .collection(tableName)
+                .collection(table)
                 .doc(id)
                 .get()
 
@@ -182,8 +182,8 @@ class Database {
     };
 
     /**
-    * @param {array} queryResults The results returned from a query to the database
-    * @return {array} The formatted query results
+    * @param {Object[]} queryResults The results returned from a query to the database.
+    * @return {Object[]} The formatted query results.
     */
     async _unpackQueryResults(queryResults) {
         const results = [];
@@ -196,6 +196,44 @@ class Database {
             results.push(thisEvent);
         });
         return results;
+    };
+
+    /**
+    * @param {string} table The name of the table (collection) you want to request results from.
+    * @param {(Object[]|Array[])} [filters] A list of filters (where conditions) to add.
+    * @param {(Object|string)} [orderBy] An order by condition to order the results by prior to returning.
+    * @param {integer} [limit=1000] An integer limit to how many rows should be returned that match the query provided.
+    * @return {Object[]} The formatted query results.
+    */
+    async selectRowsAsArray(table, filters = [], orderBy = undefined, limit = 1000) {
+        try {
+            // Make basic reference
+            let ref = this.connection.collection(table);
+
+            // Attach filters
+            filters.forEach(filter => {
+                ref.where(filter.columnName, filter.operator, filter.value);
+            });
+
+            // Attach order by
+            if (orderBy) {
+                ref.orderBy(orderBy.columnName, orderBy.operator);
+            };
+
+            // Attach limit
+            ref.limit(limit);
+
+            // Make requst
+            const res = await ref.get()
+                .catch(err => {
+                    throw new Error(`Failed to retrieve data from database. Error: ${err}`);
+                });
+
+            // Return the formatted results
+            return await this._unpackQueryResults(res);
+        } catch (e) {
+            return Promise.reject(e);
+        };
     };
 };
 
