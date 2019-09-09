@@ -6,8 +6,6 @@
   "dependencies": {
     "@emotion/core": "^10.0.15",
     "@emotion/styled": "^10.0.15",
-    "eslint": "^6.2.2",
-    "eslint-utils": "^1.4.2",
     "firebase": "^6.3.5",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
@@ -25,6 +23,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "lint": "eslint --ignore-path .gitignore .",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -47,6 +46,9 @@
     ]
   },
   "devDependencies": {
+    "eslint": "^6.3.0",
+    "eslint-config-strongloop": "^2.1.0",
+    "eslint-utils": "^1.4.2",
     "gh-pages": "^2.1.1"
   }
 }
