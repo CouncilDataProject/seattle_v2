@@ -48,6 +48,7 @@
   "devDependencies": {
     "eslint": "^6.3.0",
     "eslint-config-strongloop": "^2.1.0",
+    "eslint-plugin-jsdoc": "^15.9.1",
     "eslint-utils": "^1.4.2",
     "gh-pages": "^2.1.1"
   }
