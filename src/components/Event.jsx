@@ -26,7 +26,9 @@ const EventDate = styled.h5({
 const PlayerContainer = styled.div(props => ({
   width: "100%",
   order: "1",
-  position: "relative",
+  position: props.isPlaying && !props.isPip ? "sticky" : "relative",
+  top: props.isPlaying && "0",
+  zIndex: props.isPlaying && "2",
   "@media (min-aspect-ratio:5/4), (min-width:1200px)": {
     width: "59%"
   }
@@ -53,20 +55,44 @@ const Event = ({
   transcript
 }) => {
   const videoPlayerRef = React.useRef(null);
+  const [videoIsPlaying, setVideoIsPlaying] = React.useState(false);
+  const [isPip, setIsPip] = React.useState(false);
 
-  const handleSeek =  seconds => {
-    videoPlayerRef.current.seekTo(parseFloat(seconds));
+  React.useEffect(() => {
     const video = videoPlayerRef.current.getInternalPlayer();
 
-    window.scroll({
-      top: 0,
-      left: 0,
-      behavior: "smooth"
-    });
+    const onEnterPip = () => {
+      setIsPip(true);
+    };
+
+    const onLeavePip = () => {
+      video.pause();
+      setIsPip(false);
+    };
+
+    video.addEventListener("enterpictureinpicture", onEnterPip);
+    video.addEventListener("leavepictureinpicture", onLeavePip);
+    return () => {
+      video.removeEventListener("enterpictureinpicture", onEnterPip);
+      video.removeEventListener("leavepictureinpicture", onLeavePip);
+    };
+  }, []);
+
+  const handleSeek = seconds => {
+    videoPlayerRef.current.seekTo(parseFloat(seconds));
+    const video = videoPlayerRef.current.getInternalPlayer();
 
     if (video.paused && videoPlayerRef.current.getCurrentTime() > 0) {
       video.play();
     }
+  };
+
+  const handleOnPlay = () => {
+    setVideoIsPlaying(true);
+  };
+
+  const handleOnStop = () => {
+    setVideoIsPlaying(false);
   };
 
   return (
@@ -75,11 +101,14 @@ const Event = ({
         <h1>{title}</h1>
         <EventDate>Meeting Date: {moment(date, "MM-DD-YYYY HH:mm:ss").format("LLL")}</EventDate>
       </Header>
-      <PlayerContainer>
+      <PlayerContainer isPlaying={videoIsPlaying} isPip={isPip}>
         <PlayerWrapper>
           <StyledReactPlayer
             ref={videoPlayerRef}
             url={videoUrl}
+            onPlay={handleOnPlay}
+            onPause={handleOnStop}
+            onEnded={handleOnStop}
             controls
             height="100%"
             width="100%"
