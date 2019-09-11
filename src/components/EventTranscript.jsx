@@ -51,20 +51,19 @@ const EventTranscript = ({
     defaultHeight: 100,
   });
 
-  const onHasSearchedTranscript = () => {
-    const mediaQueriesList = window.matchMedia("(min-aspect-ratio:5/4), (min-width:1200px)");
-    if(windowScrollerRef.current && !mediaQueriesList.matches) {
-      windowScrollerRef.current.updatePosition();
-    }
-  };
-
   React.useEffect(() => {
+    const onHasSearchedTranscript = () => {
+      const mediaQueriesList = window.matchMedia("(min-aspect-ratio:5/4), (min-width:1200px)");
+      if (windowScrollerRef.current && !mediaQueriesList.matches) {
+        windowScrollerRef.current.updatePosition();
+      }
+    };
     document.addEventListener("searched-transcript", onHasSearchedTranscript);
     return () => {
       document.removeEventListener("searched-transcript", onHasSearchedTranscript);
-    }
+    };
   }, []);
-  
+
   const onResize = () => {
     cache.clearAll();
   };
@@ -108,7 +107,7 @@ const EventTranscript = ({
             rowHeight={cache.rowHeight}
             rowRenderer={Row}
             scrollToIndex={0}
-            style={{willChange:""}}
+            style={{ willChange: "" }}
             width={width}
           />
         )}
@@ -130,7 +129,7 @@ const EventTranscript = ({
                 rowHeight={cache.rowHeight}
                 rowRenderer={Row}
                 scrollTop={scrollTop}
-                style={{willChange:""}}
+                style={{ willChange: "" }}
                 width={width}
               />)}
           </AutoSizer>
