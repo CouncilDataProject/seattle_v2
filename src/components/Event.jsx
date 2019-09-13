@@ -12,7 +12,6 @@ const StyledEvent = styled.div({
 });
 
 const Header = styled.div({
-  order: "0",
   width: "100%",
   margin: "1em 0"
 });
@@ -23,14 +22,42 @@ const EventDate = styled.h5({
   fontWeight: "400"
 });
 
+const FixedSentinel = styled.div({
+  position: "absolute",
+  left: "0",
+  right: "0",
+  visibility: "hidden",
+  height: "90px",
+  backgroundColor: "yellow"
+});
+
+const DummyContainer = styled.div(props => ({
+  position: "relative",
+  display: "none",
+  "@media (min-aspect-ratio:5/4), (min-width:1200px)": {
+    display: props.isFixed ? "block" : "none",
+    width: "59%"
+  }
+}));
+
+const DummyDiv = styled.div({
+  position: "absolute",
+  top: "0",
+  left: "0",
+  backgroundColor: "black",
+  height: "100%",
+  width: "100%"
+});
+
 const PlayerContainer = styled.div(props => ({
   width: "100%",
-  order: "1",
   position: props.isPlaying && !props.isPip ? "sticky" : "relative",
-  top: props.isPlaying && "0",
-  zIndex: props.isPlaying && "2",
+  top: "0",
+  zIndex: "2",
   "@media (min-aspect-ratio:5/4), (min-width:1200px)": {
-    width: "59%"
+    position: props.isPlaying && props.isFixed && !props.isPip ? "fixed" : "relative",
+    width: props.isPlaying && props.isFixed && !props.isPip ? "20vw" : "59%",
+    right: "0"
   }
 }));
 
@@ -54,19 +81,51 @@ const Event = ({
   videoUrl,
   transcript
 }) => {
+  const fixedSentinelRef = React.useRef(null);
   const videoPlayerRef = React.useRef(null);
   const [videoIsPlaying, setVideoIsPlaying] = React.useState(false);
   const [isPip, setIsPip] = React.useState(false);
+  const [isFixed, setIsFixed] = React.useState(false);
+  const [mediaQueriesMatches, setMediaQueriesMatches] = React.useState(window.matchMedia("(min-aspect-ratio:5/4), (min-width:1200px)").matches);
+
+  React.useEffect(() => {
+    const options = {
+      root: null,
+      rootMargin: "0px",
+      threshold: 0.1
+    };
+
+    const handleIntersect = (entries, observer) => {
+      if (mediaQueriesMatches) {
+        if (entries[0].intersectionRatio >= 0.1 && entries[0].isIntersecting) {
+          setIsFixed(false);
+        } else {
+          if (videoIsPlaying && !isPip) {
+            setIsFixed(true);
+          } else {
+            setIsFixed(false);
+          }
+        }
+      }
+    };
+
+    const observer = new IntersectionObserver(handleIntersect, options);
+    observer.observe(fixedSentinelRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [videoIsPlaying, isPip, mediaQueriesMatches]);
 
   React.useEffect(() => {
     const video = videoPlayerRef.current.getInternalPlayer();
 
     const onEnterPip = () => {
+      setIsFixed(false);
       setIsPip(true);
     };
 
     const onLeavePip = () => {
-      video.pause();
       setIsPip(false);
     };
 
@@ -75,6 +134,16 @@ const Event = ({
     return () => {
       video.removeEventListener("enterpictureinpicture", onEnterPip);
       video.removeEventListener("leavepictureinpicture", onLeavePip);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const onResize = () => {
+      setMediaQueriesMatches(window.matchMedia("(min-aspect-ratio:5/4), (min-width:1200px)").matches);
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
     };
   }, []);
 
@@ -92,6 +161,7 @@ const Event = ({
   };
 
   const handleOnStop = () => {
+    setIsFixed(false);
     setVideoIsPlaying(false);
   };
 
@@ -101,7 +171,13 @@ const Event = ({
         <h1>{title}</h1>
         <EventDate>Meeting Date: {moment(date, "MM-DD-YYYY HH:mm:ss").format("LLL")}</EventDate>
       </Header>
-      <PlayerContainer isPlaying={videoIsPlaying} isPip={isPip}>
+      <FixedSentinel ref={fixedSentinelRef} />
+      <DummyContainer isFixed={isFixed}>
+        <PlayerWrapper>
+          <DummyDiv />
+        </PlayerWrapper>
+      </DummyContainer>
+      <PlayerContainer isPlaying={videoIsPlaying} isPip={isPip} isFixed={isFixed}>
         <PlayerWrapper>
           <StyledReactPlayer
             ref={videoPlayerRef}
@@ -118,6 +194,7 @@ const Event = ({
       <EventSearch
         transcript={transcript}
         handleSeek={handleSeek}
+        mediaQueriesMatches={mediaQueriesMatches}
       />
       <EventTabs
         eventId={id}

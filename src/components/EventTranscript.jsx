@@ -52,15 +52,14 @@ const EventTranscript = ({
   });
 
   React.useEffect(() => {
-    const onHasSearchedTranscript = () => {
-      const mediaQueriesList = window.matchMedia("(min-aspect-ratio:5/4), (min-width:1200px)");
-      if (windowScrollerRef.current && !mediaQueriesList.matches) {
+    const handleUpdateScrollPosition = () => {
+      if (windowScrollerRef.current) {
         windowScrollerRef.current.updatePosition();
       }
     };
-    document.addEventListener("searched-transcript", onHasSearchedTranscript);
+    document.addEventListener("update-scroll-position", handleUpdateScrollPosition);
     return () => {
-      document.removeEventListener("searched-transcript", onHasSearchedTranscript);
+      document.removeEventListener("update-scroll-position", handleUpdateScrollPosition);
     };
   }, []);
 

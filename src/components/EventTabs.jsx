@@ -5,7 +5,6 @@ import EventVotingPane from "../containers/EventVotingPane";
 import styled from "@emotion/styled";
 
 const StyledTab = styled(Tab)({
-  order: "3",
   width: "100%",
   "a.item": {
     fontSize: "1.3em !important"
