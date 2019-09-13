@@ -7,7 +7,6 @@ import isSubstring from "../utils/isSubstring";
 const StyledEventSearch = styled.div({
   margin: "1em 0",
   width: "100%",
-  order: "2",
   display: "flex",
   flexDirection: "column",
   boxSizing: "border-box",
@@ -54,13 +53,16 @@ const SearchResultsWrapper = styled.div({
 
 const EventSearch = ({
   transcript,
-  handleSeek
+  handleSeek,
+  mediaQueriesMatches
 }) => {
   const [transcriptSearchText, setTranscriptSearchText] = React.useState("");
 
   const handleTranscriptSearch = (e, { value }) => {
     setTranscriptSearchText(value);
-    document.dispatchEvent(new CustomEvent("searched-transcript"));
+    if(!mediaQueriesMatches) {
+      document.dispatchEvent(new CustomEvent("update-scroll-position"));
+    }
   };
 
   const transcriptItems = transcript.filter(({ text }) => isSubstring(text, transcriptSearchText));
