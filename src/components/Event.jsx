@@ -51,12 +51,12 @@ const DummyDiv = styled.div({
 
 const PlayerContainer = styled.div(props => ({
   width: "100%",
-  position: props.isPlaying && !props.isPip ? "sticky" : "relative",
+  position: !props.isPip ? "sticky" : "relative",
   top: "0",
   zIndex: "2",
   "@media (min-aspect-ratio:5/4), (min-width:1200px)": {
-    position: props.isPlaying && props.isFixed && !props.isPip ? "fixed" : "relative",
-    width: props.isPlaying && props.isFixed && !props.isPip ? "20vw" : "59%",
+    position: props.isFixed && !props.isPip ? "fixed" : "relative",
+    width: props.isFixed && !props.isPip ? "20vw" : "59%",
     right: "0"
   }
 }));
@@ -83,7 +83,6 @@ const Event = ({
 }) => {
   const fixedSentinelRef = React.useRef(null);
   const videoPlayerRef = React.useRef(null);
-  const [videoIsPlaying, setVideoIsPlaying] = React.useState(false);
   const [isPip, setIsPip] = React.useState(false);
   const [isFixed, setIsFixed] = React.useState(false);
   const [mediaQueriesMatches, setMediaQueriesMatches] = React.useState(window.matchMedia("(min-aspect-ratio:5/4), (min-width:1200px)").matches);
@@ -96,15 +95,11 @@ const Event = ({
     };
 
     const handleIntersect = (entries, observer) => {
-      if (mediaQueriesMatches) {
+      if (mediaQueriesMatches && !isPip) {
         if (entries[0].intersectionRatio >= 0.1 && entries[0].isIntersecting) {
           setIsFixed(false);
         } else {
-          if (videoIsPlaying && !isPip) {
-            setIsFixed(true);
-          } else {
-            setIsFixed(false);
-          }
+          setIsFixed(true);
         }
       }
     };
@@ -115,7 +110,7 @@ const Event = ({
     return () => {
       observer.disconnect();
     };
-  }, [videoIsPlaying, isPip, mediaQueriesMatches]);
+  }, [isPip, mediaQueriesMatches]);
 
   React.useEffect(() => {
     const video = videoPlayerRef.current.getInternalPlayer();
@@ -156,15 +151,6 @@ const Event = ({
     }
   };
 
-  const handleOnPlay = () => {
-    setVideoIsPlaying(true);
-  };
-
-  const handleOnStop = () => {
-    setIsFixed(false);
-    setVideoIsPlaying(false);
-  };
-
   return (
     <StyledEvent>
       <Header>
@@ -177,14 +163,11 @@ const Event = ({
           <DummyDiv />
         </PlayerWrapper>
       </DummyContainer>
-      <PlayerContainer isPlaying={videoIsPlaying} isPip={isPip} isFixed={isFixed}>
+      <PlayerContainer isPip={isPip} isFixed={isFixed}>
         <PlayerWrapper>
           <StyledReactPlayer
             ref={videoPlayerRef}
             url={videoUrl}
-            onPlay={handleOnPlay}
-            onPause={handleOnStop}
-            onEnded={handleOnStop}
             controls
             height="100%"
             width="100%"
