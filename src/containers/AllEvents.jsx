@@ -2,7 +2,8 @@ import React from "react";
 import { Select } from "semantic-ui-react";
 import moment from "moment";
 import styled from "@emotion/styled";
-import { getAllEvents, getBasicEventById } from "../api/eventApi";
+import { db } from "../api/database";
+import { getBasicEventById } from "../api/eventApi";
 import EventCardGroup from "../components/EventCardGroup";
 
 const FiltersSection = styled.div({
@@ -46,7 +47,7 @@ const EventCardGroupContainer = ({ query }) => {
   React.useEffect(() => {
     (async () => {
       setIsLoading(true);
-      const allEvents = await getAllEvents();
+      const allEvents = await db.selectRowsAsArray("event");
       const basicEventData = await Promise.all(
         allEvents.map(({ id }) => getBasicEventById(id))
       );

@@ -3,63 +3,54 @@ import moment from "moment";
 import natural from "natural";
 import { flatten, sortBy, reverse, groupBy, mapValues, filter } from "lodash";
 import { getAllResources, getSingleResource, getResourceById } from "./baseApi";
+import { db } from "./database";
 import { fetchJson } from "./utils";
 
 const storage = firebase.storage();
 
-export async function getAllEvents() {
-  return getAllResources("event");
-}
-
-/**
- * @param {object} takes a single record from getAll, just needs {id: id}
- * @returns {object} returns the same object with the transcript attached
- */
-
 export async function getEventMinutes(eventId) {
   try {
-    const eventMinutes = await getSingleResource(
-      "event_minutes_item",
-      "event_id",
-      eventId
+    const eventMinutes = await db.selectRowsAsArray(
+        "event_minutes_item",
+        [
+            {
+                columnName: "event_id",
+                value: eventId
+            }
+        ]
     );
+
     return eventMinutes;
-  } catch (e) {
-    return Promise.reject(e);
-  }
-}
+
+    } catch (e) {
+      return Promise.reject(e);
+    };
+};
 
 export async function getEventMinutesItem(eventMinutesItemId) {
   try {
-    const {
-      minutes_item_id,
-      created,
-      decision,
-      event_id,
-      index
-    } = await getResourceById("event_minutes_item", eventMinutesItemId);
-    const minutesItem = await getResourceById("minutes_item", minutes_item_id);
-    const minutesItemFile = await getSingleResource(
-      "minutes_item_file",
-      "minutes_item_id",
-      minutes_item_id
+    const eventMinutesItem = await db.selectRowById("event_minutes_item", eventMinutesItemId);
+    const minutesItem = await db.selectRowById("minutes_item", eventMinutesItem.minutes_item_id);
+    const minutesItemFiles = await db.selectRowsAsArray(
+        "minutes_item_file",
+        [
+            {
+                columnName: "minutes_item_id",
+                value: eventMinutesItem.minutes_item_id
+            }
+        ]
     );
 
     return {
-      id: eventMinutesItemId,
-      created,
-      decision,
-      event_id,
-      index,
+      ...eventMinutesItem,
       minutes_item: {
-        id: minutes_item_id,
         ...minutesItem,
-        file: minutesItemFile
+        files: minutesItemFiles
       }
     };
-  } catch (e) {
-    return Promise.reject(e);
-  }
+    } catch (e) {
+      return Promise.reject(e);
+    };
 }
 
 export async function getEventBody(bodyId) {
