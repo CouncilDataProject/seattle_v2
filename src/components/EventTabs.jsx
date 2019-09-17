@@ -18,9 +18,10 @@ const StyledEventTabs = styled.div({
 const StyledEventMenu = styled(Menu)({
   borderBottom: "0 !important",
   marginBottom: "1em !important",
-  backgroundColor: "lightgray !important",
+  paddingTop: "1em !important",
+  backgroundColor: "white !important",
   zIndex: "0 !important",
-  width: "100%"
+  width: "100vw"
 });
 
 const EventTabs = ({
