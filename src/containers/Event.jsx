@@ -27,6 +27,7 @@ const EventContainer = ({ id }) => {
       videoUrl={event.videoUrl}
       minutes={event.minutes}
       transcript={event.transcript}
+      votes={event.votes}
     />
   ) : <Loader active/>;
 };
