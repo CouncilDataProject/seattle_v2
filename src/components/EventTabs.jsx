@@ -21,7 +21,7 @@ const StyledEventMenu = styled(Menu)({
   paddingTop: "1em !important",
   backgroundColor: "white !important",
   zIndex: "0 !important",
-  width: "100vw"
+  width: "100%"
 });
 
 const EventTabs = ({
