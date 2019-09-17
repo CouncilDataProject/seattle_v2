@@ -79,13 +79,15 @@ const Event = ({
   minutes,
   scPageUrl,
   videoUrl,
-  transcript
+  transcript,
+  votes
 }) => {
   const fixedSentinelRef = React.useRef(null);
   const videoPlayerRef = React.useRef(null);
   const [isPip, setIsPip] = React.useState(false);
   const [isFixed, setIsFixed] = React.useState(false);
   const [mediaQueriesMatches, setMediaQueriesMatches] = React.useState(window.matchMedia("(min-aspect-ratio:5/4), (min-width:1200px)").matches);
+  const [topOffset, setTopOffset] = React.useState(0);
 
   React.useEffect(() => {
     const options = {
@@ -134,7 +136,14 @@ const Event = ({
 
   React.useEffect(() => {
     const onResize = () => {
-      setMediaQueriesMatches(window.matchMedia("(min-aspect-ratio:5/4), (min-width:1200px)").matches);
+      const mediaQueriesList = window.matchMedia("(min-aspect-ratio:5/4), (min-width:1200px)");
+      if(!mediaQueriesList.matches) {
+        setTopOffset(videoPlayerRef.current.getInternalPlayer().offsetHeight);
+      } else {
+        setTopOffset(0);
+      }
+      setMediaQueriesMatches(mediaQueriesList.matches);
+
     };
     window.addEventListener("resize", onResize);
     return () => {
@@ -148,6 +157,12 @@ const Event = ({
 
     if (video.paused && videoPlayerRef.current.getCurrentTime() > 0) {
       video.play();
+    }
+  };
+
+  const onVideoReady = () => {
+    if(!mediaQueriesMatches) {
+      setTopOffset(videoPlayerRef.current.getInternalPlayer().offsetHeight);
     }
   };
 
@@ -168,6 +183,7 @@ const Event = ({
           <StyledReactPlayer
             ref={videoPlayerRef}
             url={videoUrl}
+            onReady={onVideoReady}
             controls
             height="100%"
             width="100%"
@@ -180,11 +196,13 @@ const Event = ({
         mediaQueriesMatches={mediaQueriesMatches}
       />
       <EventTabs
-        eventId={id}
         minutes={minutes}
         scPageUrl={scPageUrl}
         transcript={transcript}
+        votes={votes}
         handleSeek={handleSeek}
+        topOffset={topOffset}
+        mediaQueriesMatches={mediaQueriesMatches}
       />
     </StyledEvent>
   );

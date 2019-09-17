@@ -166,6 +166,7 @@ export async function getEventById(id) {
       minutes.map(({ id }) => getEventMinutesItem(id))
     );
     const transcript = await getEventTranscriptMetadata(id);
+    const votes = await getVotesForEvent(id);
 
     return {
       id,
@@ -177,7 +178,8 @@ export async function getEventById(id) {
         .format("MM-DD-YYYY HH:MM:SS"),
       minutes: sortBy(minutesItems, minuteItem => minuteItem.index),
       transcript: transcript.data,
-      scPageUrl: event.source_uri
+      scPageUrl: event.source_uri,
+      votes: votes
     };
   } catch (e) {
     return Promise.reject(e);

@@ -1,85 +1,78 @@
 import React from "react";
-import { Grid, Tab, List } from "semantic-ui-react";
+import { Menu, Sticky } from "semantic-ui-react";
+import EventMinutes from "./EventMinutes";
 import EventTranscript from "./EventTranscript";
-import EventVotingPane from "../containers/EventVotingPane";
+import VotingTable from "./VotingTable";
 import styled from "@emotion/styled";
 
-const StyledTab = styled(Tab)({
+const StyledEventTabs = styled.div({
+  margin: "1em 0",
   width: "100%",
+  fontSize: "16px",
+  lineHeight: "1.5",
   "a.item": {
     fontSize: "1.3em !important"
   }
 });
 
-const Pane = styled(Tab.Pane)({
-  padding: "0 !important",
-  border: "none !important",
-  boxShadow: "none !important",
-  WebkitBoxShadow: "none !important",
-  fontSize: "16px !important",
-  lineHeight: "1.5 !important"
+const StyledEventMenu = styled(Menu)({
+  borderBottom: "0 !important",
+  marginBottom: "1em !important",
+  backgroundColor: "lightgray !important",
+  zIndex: "0 !important",
+  width: "100%"
 });
 
 const EventTabs = ({
-  eventId,
   minutes,
   scPageUrl,
   transcript,
-  handleSeek
+  votes,
+  handleSeek,
+  topOffset,
+  mediaQueriesMatches
 }) => {
-  const panes = [
-    {
-      menuItem: "Details",
-      render: () => (
-        <Pane attached={false}>
-          <Grid.Row>
-            <h3>Minutes</h3>
-            <List ordered>
-              {minutes.map(({ minutes_item }, i) => (
-                <List.Item key={minutes_item.id}>{minutes_item.name}</List.Item>
-              ))}
-            </List>
-          </Grid.Row>
-          <Grid.Row style={{ marginTop: "1em" }}>
-            <h3>Links</h3>
-            <List>
-              <List.Item>
-                <a href={scPageUrl}>Seattle Channel Event Page</a>
-              </List.Item>
-            </List>
-          </Grid.Row>
-        </Pane>
-      )
-    },
-    {
-      menuItem: "Transcript",
-      render: () => (
-        <Pane attached={false}>
-          <EventTranscript
-            searchText={""}
-            transcript={transcript}
-            handleSeek={handleSeek}
-            isSearch={false}
-          />
-        </Pane>
-      )
-    },
-    {
-      menuItem: "Votes",
-      render: () => {
-        return (
-          <Pane attached={false}>
-            <Grid.Row>
-              <EventVotingPane eventId={eventId} />
-            </Grid.Row>
-          </Pane>
-        );
+  const [activeItem, setActiveItem] = React.useState("details");
+  const contextRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const domRect = contextRef.current.getBoundingClientRect();
+    if (domRect.top < 0) {
+      contextRef.current.scrollIntoView(true);
+      if (!mediaQueriesMatches) {
+        window.scrollBy(0, -topOffset);
       }
     }
-  ];
+  }, [activeItem, mediaQueriesMatches, topOffset]);
+
+  const handleItemClick = (e, { name }) => {
+    setActiveItem(name);
+  };
 
   return (
-    <StyledTab menu={{ secondary: true, pointing: true }} panes={panes} />
+    <StyledEventTabs ref={contextRef}>
+      <Sticky
+        context={contextRef}
+        offset={topOffset}
+        styleElement={{ zIndex: "1" }}
+      >
+        <StyledEventMenu secondary pointing>
+          <Menu.Item active={activeItem === "details"} name="details" onClick={handleItemClick} />
+          <Menu.Item active={activeItem === "transcript"} name="transcript" onClick={handleItemClick} />
+          <Menu.Item active={activeItem === "votes"} name="votes" onClick={handleItemClick} />
+        </StyledEventMenu>
+      </Sticky>
+      {{
+        details: <EventMinutes minutes={minutes} scPageUrl={scPageUrl} />,
+        transcript: <EventTranscript
+          searchText={""}
+          transcript={transcript}
+          handleSeek={handleSeek}
+          isSearch={false}
+        />,
+        votes: votes.length ? <VotingTable votingData={votes} /> : <div>No votes found for this event.</div>
+      }[activeItem]}
+    </StyledEventTabs>
   );
 };
 
