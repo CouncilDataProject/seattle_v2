@@ -1,6 +1,7 @@
 import React from 'react'
-import { Table, Icon } from 'semantic-ui-react';
+import { Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
+import moment from "moment";
 import styled from "@emotion/styled";
 
 const Headers = [
@@ -50,9 +51,8 @@ const VotingTable = ({ votingData, isPerson }) => (
     <StyledTableHeader>
       <Table.Row>
         {Headers.map(headerMetaData => (<Table.HeaderCell
-          key={headerMetaData.text}
-          width={headerMetaData.width}>{headerMetaData.text}
-        </Table.HeaderCell>
+          key={headerMetaData.text}>{headerMetaData.text}
+          </Table.HeaderCell> 
         ))}
         {/* If we are rendering votes for a person, we want to link to the event */}
         {isPerson && <Table.HeaderCell key={'Event'}>Event</Table.HeaderCell>}
@@ -64,14 +64,14 @@ const VotingTable = ({ votingData, isPerson }) => (
           {Headers.map(headerMetaData => {
             if (headerMetaData.accessor !== 'votingRecords') {
               return (
-                <Table.Cell key={headerMetaData.accessor}>
+                <Table.Cell key={headerMetaData.accessor} width={headerMetaData.width}>
                   {votingDatum[headerMetaData.accessor]}
                 </Table.Cell>
               )
             }
             if (votingDatum.formattedIndividualVotes) {
               return (
-                <Table.Cell key={headerMetaData.accessor}>
+                <Table.Cell key={headerMetaData.accessor} width={headerMetaData.width}>
                   {votingDatum.formattedIndividualVotes.map(record => {
                     return (
                       <MiniTable key={record.full_name}>
@@ -91,13 +91,14 @@ const VotingTable = ({ votingData, isPerson }) => (
             } else {
               return (
                 <React.Fragment key={headerMetaData.accessor}>
-                  <Table.Cell>
+                  <Table.Cell width={'1'}>
                     {votingDatum.voteForPerson}
                   </Table.Cell>
                   <Table.Cell>
                     <Link to={`/events/${votingDatum.eventId}`}>
-                      <Icon name="linkify" />
+                      <span>{votingDatum.body_name}</span>
                     </Link>
+                    <div>{moment(votingDatum.eventDate, "MM-DD-YYYY HH:mm:ss").format("LLL")}</div>
                   </Table.Cell>
                 </React.Fragment>
               )
