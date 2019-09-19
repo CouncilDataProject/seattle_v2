@@ -54,7 +54,7 @@ export async function getEventMinutesItem(eventMinutesItemId) {
       minutes_item: {
         id: minutes_item_id,
         ...minutesItem,
-        file: minutesItemFile
+        file: sortBy(minutesItemFile, file => file.name)
       }
     };
   } catch (e) {
