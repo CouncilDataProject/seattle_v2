@@ -45,7 +45,7 @@ export async function getEventMinutesItem(eventMinutesItemId) {
       ...eventMinutesItem,
       minutes_item: {
         ...minutesItem,
-        files: minutesItemFiles
+        file: sortBy(minutesItemFile, file => file.name)
       }
     };
     } catch (e) {
@@ -100,51 +100,48 @@ export async function getVotesForEvent(eventId) {
   );
 
   // instead of getting all minutes items, we could create an array of promises as below
-  const allMinuteItems = await getAllResources("minutes_item");
+  const minuteItemPromises = minuteItemsWithDecisions.map(({ minutes_item_id }) => getResourceById("minutes_item", minutes_item_id));
+  const minuteItems = await Promise.all(minuteItemPromises);
   const formattedItems = [];
-  minuteItemsWithDecisions.forEach(item => {
-    const thisMinuteItem = allMinuteItems.find(
-      minuteItem => minuteItem.id === item.minutes_item_id
-    );
+  minuteItemsWithDecisions.forEach((item, i) => {
+    const thisMinuteItem = minuteItems[i];
     formattedItems.push({
       matter: thisMinuteItem.matter,
       name: thisMinuteItem.name,
       id: item.id,
-      decision: item.decision
+      decision: item.decision,
+      index: item.index
     });
   });
 
-  const allPeople = await getAllResources("person");
-  const promises = [];
-  formattedItems.forEach(item => {
-    const getVotesForMinuteItem = getSingleResource(
-      "vote",
-      "event_minutes_item_id",
-      item.id
-    );
-    promises.push(getVotesForMinuteItem);
+  const votePromises = formattedItems.map(item => getSingleResource(
+    "vote",
+    "event_minutes_item_id",
+    item.id));
+  const minuteItemVotes = await Promise.all(votePromises);
+
+  const minuteItemPersonPromises = [];
+  minuteItemVotes.forEach(votes => {
+    const personPromises = votes.map(vote => getResourceById("person", vote.person_id));
+    minuteItemPersonPromises.push(Promise.all(personPromises));
   });
-  await Promise.all(promises).then(res => {
-    res.forEach(votesForMinuteItem => {
-      const thisEventMinutesItemId =
-        votesForMinuteItem[0].event_minutes_item_id;
-      const formattedMinutesItem = formattedItems.find(
-        item => item.id === thisEventMinutesItemId
-      );
-      const votesByPerson = [];
-      votesForMinuteItem.forEach(unformattedVote => {
-        const person = allPeople.find(
-          person => person.id === unformattedVote.person_id
-        );
-        votesByPerson.push({
-          decision: unformattedVote.decision,
-          person_id: unformattedVote.person_id,
-          full_name: person.full_name
-        });
+  const minuteItemPersons = await Promise.all(minuteItemPersonPromises);
+
+  formattedItems.forEach((item, i) => {
+    const votes = minuteItemVotes[i];
+    const persons = minuteItemPersons[i];
+    const votesByPerson = [];
+    votes.forEach((vote, j) => {
+      votesByPerson.push({
+        decision: vote.decision,
+        person_id: vote.person_id,
+        full_name: persons[j].full_name
       });
-      formattedMinutesItem.formattedIndividualVotes = votesByPerson;
     });
+
+    item.formattedIndividualVotes = sortBy(votesByPerson, vote => vote.full_name);
   });
+
   return formattedItems;
 }
 
@@ -157,6 +154,7 @@ export async function getEventById(id) {
       minutes.map(({ id }) => getEventMinutesItem(id))
     );
     const transcript = await getEventTranscriptMetadata(id);
+    const votes = await getVotesForEvent(id);
 
     return {
       id,
@@ -168,7 +166,8 @@ export async function getEventById(id) {
         .format("MM-DD-YYYY HH:MM:SS"),
       minutes: sortBy(minutesItems, minuteItem => minuteItem.index),
       transcript: transcript.data,
-      scPageUrl: event.source_uri
+      scPageUrl: event.source_uri,
+      votes: sortBy(votes, item => item.index)
     };
   } catch (e) {
     return Promise.reject(e);
