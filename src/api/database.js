@@ -4,7 +4,7 @@ import { isString } from "./utils";
 
 export const WHERE_OPERATORS = {
     eq: "==",
-    contains: "in",
+    contains: "array-contains",
     gt: ">",
     lt: "<",
     gteq: ">=",
@@ -12,8 +12,8 @@ export const WHERE_OPERATORS = {
 };
 
 export const ORDER_OPERATORS = {
-    asc: "ASCENDING",
-    desc: "DESCENDING"
+    asc: "asc",
+    desc: "desc"
 };
 
 export class WhereCondition {
@@ -174,7 +174,7 @@ class Database {
                 .collection(table)
                 .doc(id)
                 .get()
-
+                
             return res.data();
         } catch (e) {
             return Promise.reject(e);
@@ -212,16 +212,16 @@ class Database {
 
             // Attach filters
             filters.forEach(filter => {
-                ref.where(filter.columnName, filter.operator, filter.value);
+                ref = ref.where(filter.columnName, filter.operator, filter.value);
             });
 
             // Attach order by
             if (orderBy) {
-                ref.orderBy(orderBy.columnName, orderBy.operator);
+                ref = ref.orderBy(orderBy.columnName, orderBy.operator);
             };
 
             // Attach limit
-            ref.limit(limit);
+            ref = ref.limit(limit);
 
             // Make requst
             const res = await ref.get()

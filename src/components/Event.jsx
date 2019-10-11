@@ -170,7 +170,7 @@ const Event = ({
     <StyledEvent>
       <Header>
         <h1>{title}</h1>
-        <EventDate>Meeting Date: {moment(date, "MM-DD-YYYY HH:mm:ss").format("LLL")}</EventDate>
+        <EventDate>Meeting Date: {moment.utc(date).format("LLL")}</EventDate>
       </Header>
       <FixedSentinel ref={fixedSentinelRef} />
       <DummyContainer isFixed={isFixed}>

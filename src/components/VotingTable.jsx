@@ -98,7 +98,7 @@ const VotingTable = ({ votingData, isPerson }) => (
                     <Link to={`/events/${votingDatum.eventId}`}>
                       <span>{votingDatum.body_name}</span>
                     </Link>
-                    <div>{moment(votingDatum.eventDate, "MM-DD-YYYY HH:mm:ss").format("LLL")}</div>
+                    <div>{moment.utc(votingDatum.eventDate).format("LLL")}</div>
                   </Table.Cell>
                 </React.Fragment>
               )

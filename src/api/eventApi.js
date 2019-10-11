@@ -2,60 +2,53 @@ import * as firebase from "firebase";
 import moment from "moment";
 import natural from "natural";
 import { flatten, sortBy, reverse, groupBy, mapValues, filter } from "lodash";
-import { getAllResources, getSingleResource, getResourceById } from "./baseApi";
-import { db } from "./database";
+import { db, WhereCondition, WHERE_OPERATORS, OrderCondition, ORDER_OPERATORS } from "./database";
 import { fetchJson } from "./utils";
 
 const storage = firebase.storage();
 
-export async function getEventMinutes(eventId) {
+export async function getAllEvents() {
+  return await db.selectRowsAsArray("event", [], new OrderCondition(["event_datetime", ORDER_OPERATORS.desc]));
+}
+
+export async function getEventMinutes(eventId, indexOrder) {
   try {
     const eventMinutes = await db.selectRowsAsArray(
-        "event_minutes_item",
-        [
-            {
-                columnName: "event_id",
-                value: eventId
-            }
-        ]
+      "event_minutes_item",
+      [new WhereCondition(["event_id", WHERE_OPERATORS.eq, eventId])],
+      new OrderCondition(["index", indexOrder])
     );
-
     return eventMinutes;
+  } catch (e) {
+    return Promise.reject(e);
+  };
+}
 
-    } catch (e) {
-      return Promise.reject(e);
-    };
-};
-
-export async function getEventMinutesItem(eventMinutesItemId) {
+export async function getEventMinutesItem(eventMinutesItem) {
   try {
-    const eventMinutesItem = await db.selectRowById("event_minutes_item", eventMinutesItemId);
     const minutesItem = await db.selectRowById("minutes_item", eventMinutesItem.minutes_item_id);
     const minutesItemFiles = await db.selectRowsAsArray(
-        "minutes_item_file",
-        [
-            {
-                columnName: "minutes_item_id",
-                value: eventMinutesItem.minutes_item_id
-            }
-        ]
+      "minutes_item_file",
+      [new WhereCondition(["minutes_item_id", WHERE_OPERATORS.eq, eventMinutesItem.minutes_item_id])],
+      new OrderCondition(['name', ORDER_OPERATORS.asc])
     );
 
     return {
       ...eventMinutesItem,
       minutes_item: {
+        id: eventMinutesItem.minutes_item_id,
         ...minutesItem,
-        file: sortBy(minutesItemFile, file => file.name)
+        file: minutesItemFiles
       }
     };
-    } catch (e) {
-      return Promise.reject(e);
-    };
+  } catch (e) {
+    return Promise.reject(e);
+  };
 }
 
 export async function getEventBody(bodyId) {
   try {
-    const body = await getResourceById("body", bodyId);
+    const body = await db.selectRowById('body', bodyId);
     return body;
   } catch (e) {
     return Promise.reject(e);
@@ -64,78 +57,60 @@ export async function getEventBody(bodyId) {
 
 export async function getEventTranscriptMetadata(eventId) {
   try {
-    const [firstTranscript] = await getSingleResource(
+    const [firstTranscript] = await db.selectRowsAsArray(
       "transcript",
-      "event_id",
-      eventId
+      [new WhereCondition(["event_id", WHERE_OPERATORS.eq, eventId])]
     );
 
-    const transcriptMetadata = await getResourceById(
-      "file",
-      firstTranscript.file_id
-    );
+    const transcriptMetadata = await db.selectRowById("file", firstTranscript.file_id);
 
     // https://firebase.google.com/docs/storage/web/download-files
     const gsReference = storage.refFromURL(transcriptMetadata.uri);
     const transcript = await gsReference
       .getDownloadURL()
       .then(url => fetchJson(url));
-
     return transcript;
   } catch (e) {
     return Promise.reject(e);
   }
 }
 
-export async function getVotesForEvent(eventId) {
-  // get all minute items for a single event
-  const extractedMinutes = await getSingleResource(
-    "event_minutes_item",
-    "event_id",
-    eventId
-  );
-  // filter out minute items that are not votes
-  const minuteItemsWithDecisions = extractedMinutes.filter(
+export async function getVotesForEvent(minutesItems) {
+  const minuteItemsWithDecisions = minutesItems.filter(
     minute => minute.decision !== null
   );
 
-  // instead of getting all minutes items, we could create an array of promises as below
-  const minuteItemPromises = minuteItemsWithDecisions.map(({ minutes_item_id }) => getResourceById("minutes_item", minutes_item_id));
-  const minuteItems = await Promise.all(minuteItemPromises);
   const formattedItems = [];
-  minuteItemsWithDecisions.forEach((item, i) => {
-    const thisMinuteItem = minuteItems[i];
+  minuteItemsWithDecisions.forEach(item => {
     formattedItems.push({
-      matter: thisMinuteItem.matter,
-      name: thisMinuteItem.name,
+      matter: item.minutes_item.matter,
+      name: item.minutes_item.name,
       id: item.id,
       decision: item.decision,
       index: item.index
     });
   });
 
-  const votePromises = formattedItems.map(item => getSingleResource(
-    "vote",
-    "event_minutes_item_id",
-    item.id));
+  const votePromises = formattedItems.map(item => 
+    db.selectRowsAsArray(
+      "vote",
+      [new WhereCondition(["event_minutes_item_id", WHERE_OPERATORS.eq, item.id])]
+    )
+  );
+
   const minuteItemVotes = await Promise.all(votePromises);
 
-  const minuteItemPersonPromises = [];
-  minuteItemVotes.forEach(votes => {
-    const personPromises = votes.map(vote => getResourceById("person", vote.person_id));
-    minuteItemPersonPromises.push(Promise.all(personPromises));
-  });
-  const minuteItemPersons = await Promise.all(minuteItemPersonPromises);
+  const allPeople = await db.selectRowsAsArray("person");
 
   formattedItems.forEach((item, i) => {
     const votes = minuteItemVotes[i];
-    const persons = minuteItemPersons[i];
     const votesByPerson = [];
-    votes.forEach((vote, j) => {
+    votes.forEach(vote => {
+      const person = allPeople.find(person => person.id === vote.person_id)
       votesByPerson.push({
         decision: vote.decision,
         person_id: vote.person_id,
-        full_name: persons[j].full_name
+        full_name: person.full_name
       });
     });
 
@@ -147,14 +122,14 @@ export async function getVotesForEvent(eventId) {
 
 export async function getEventById(id) {
   try {
-    const event = await getResourceById("event", id);
+    const event = await db.selectRowById("event", id);
     const body = await getEventBody(event.body_id);
-    const minutes = await getEventMinutes(id);
+    const minutes = await getEventMinutes(id, ORDER_OPERATORS.asc);
     const minutesItems = await Promise.all(
-      minutes.map(({ id }) => getEventMinutesItem(id))
+      minutes.map(minute => getEventMinutesItem(minute))
     );
     const transcript = await getEventTranscriptMetadata(id);
-    const votes = await getVotesForEvent(id);
+    const votes = await getVotesForEvent(minutesItems);
 
     return {
       id,
@@ -162,12 +137,12 @@ export async function getEventById(id) {
       description: body.description,
       videoUrl: event.video_uri,
       date: moment
-        .utc(event.event_datetime.toDate())
-        .format("MM-DD-YYYY HH:MM:SS"),
-      minutes: sortBy(minutesItems, minuteItem => minuteItem.index),
+        .utc(event.event_datetime.toMillis())
+        .toISOString(),
+      minutes: minutesItems,
       transcript: transcript.data,
       scPageUrl: event.source_uri,
-      votes: sortBy(votes, item => item.index)
+      votes: votes
     };
   } catch (e) {
     return Promise.reject(e);
@@ -176,7 +151,7 @@ export async function getEventById(id) {
 
 export async function getBasicEventById(id) {
   try {
-    const event = await getResourceById("event", id);
+    const event = await db.selectRowById("event", id);
     const body = await getEventBody(event.body_id);
 
     return {
@@ -184,8 +159,8 @@ export async function getBasicEventById(id) {
       name: body.name,
       description: body.description,
       date: moment
-        .utc(event.event_datetime.toDate())
-        .format("MM-DD-YYYY HH:MM:SS")
+        .utc(event.event_datetime.toMillis())
+        .toISOString()
     };
   } catch (e) {
     return Promise.reject(e);
@@ -202,7 +177,10 @@ export async function getEventsByIndexedTerm(term) {
     // get matches for each term
     const matches = await Promise.all(
       stemmedTokens.map(stemmedToken =>
-        getSingleResource("indexed_event_term", "term", stemmedToken)
+        db.selectRowsAsArray(
+          "indexed_event_term",
+          [new WhereCondition(["term", WHERE_OPERATORS.eq, stemmedToken])]
+        )
       )
     );
 
@@ -231,6 +209,7 @@ export async function getEventsByIndexedTerm(term) {
     const events = await Promise.all(
       sortedSummedMatches.map(({ event_id }) => getBasicEventById(event_id))
     );
+    console.log(sortedSummedMatches)
 
     return events;
   } catch (e) {

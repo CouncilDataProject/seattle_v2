@@ -2,8 +2,7 @@ import React from "react";
 import { Select } from "semantic-ui-react";
 import moment from "moment";
 import styled from "@emotion/styled";
-import { db } from "../api/database";
-import { getBasicEventById } from "../api/eventApi";
+import { getBasicEventById, getAllEvents } from "../api";
 import EventCardGroup from "../components/EventCardGroup";
 
 const FiltersSection = styled.div({
@@ -38,8 +37,8 @@ const EventCardGroupContainer = ({ query }) => {
     if (value === "all") {
       setVisibleEvents(allEvents);
     } else {
-      const comparisonDate = moment().subtract(value, "months");
-      const isAfter = date => moment(date).isAfter(comparisonDate);
+      const comparisonDate = moment.utc().subtract(value, "months");
+      const isAfter = date => moment.utc(date).isAfter(comparisonDate);
       setVisibleEvents(allEvents.filter(({ date }) => isAfter(date)));
     }
   };
@@ -47,7 +46,7 @@ const EventCardGroupContainer = ({ query }) => {
   React.useEffect(() => {
     (async () => {
       setIsLoading(true);
-      const allEvents = await db.selectRowsAsArray("event");
+      const allEvents = await getAllEvents();
       const basicEventData = await Promise.all(
         allEvents.map(({ id }) => getBasicEventById(id))
       );

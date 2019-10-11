@@ -7,6 +7,7 @@ const EventCardGroup = ({ events }) => {
     <Card.Group centered>
       {events.map(({ name, date, description, id }) => (
         <EventCard
+          key={id}
           name={name}
           date={date}
           description={description}
