@@ -209,7 +209,6 @@ export async function getEventsByIndexedTerm(term) {
     const events = await Promise.all(
       sortedSummedMatches.map(({ event_id }) => getBasicEventById(event_id))
     );
-    console.log(sortedSummedMatches)
 
     return events;
   } catch (e) {
