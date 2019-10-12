@@ -1,8 +1,8 @@
 import React from 'react'
 import { Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import moment from "moment";
 import styled from "@emotion/styled";
+import getDateTime from "../utils/getDateTime";
 
 const Headers = [
   {
@@ -98,7 +98,7 @@ const VotingTable = ({ votingData, isPerson }) => (
                     <Link to={`/events/${votingDatum.eventId}`}>
                       <span>{votingDatum.body_name}</span>
                     </Link>
-                    <div>{moment.utc(votingDatum.eventDate).format("LLL")}</div>
+                    <div>{getDateTime(votingDatum.eventDate)}</div>
                   </Table.Cell>
                 </React.Fragment>
               )

@@ -1,8 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Card } from "semantic-ui-react";
-import moment from "moment";
 import styled from "@emotion/styled";
+import getDateTime from "../utils/getDateTime";
 
 const StyledCard = styled(Card)({
   boxShadow: "none !important"
@@ -18,7 +18,7 @@ const EventCard = ({ name, date, description, link }) => (
       <Card.Header>
         <Link to={link}>{name}</Link>
       </Card.Header>
-      <Card.Meta>{moment.utc(date).format("LLL")}</Card.Meta>
+      <Card.Meta>{getDateTime(date)}</Card.Meta>
       <Card.Description>{description}</Card.Description>
     </StyledCardContent>
   </StyledCard>
