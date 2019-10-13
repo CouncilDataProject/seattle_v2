@@ -45,13 +45,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - uses: actions/setup-node@v1
-      name: Setup Node
-      with:
-        node-version: '10.x'
-    - name: Install Dependencies
-      run: |
-        npm i
     - uses: JamesIves/github-pages-deploy-action@master
       name: Run Deploy
       env:
