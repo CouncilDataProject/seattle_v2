@@ -1,5 +1,5 @@
 import React from "react";
-import { getEventById } from "../api/eventApi";
+import { getEventById } from "../api";
 import { Loader } from "semantic-ui-react";
 import Event from "../components/Event";
 

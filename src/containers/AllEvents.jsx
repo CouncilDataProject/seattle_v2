@@ -2,7 +2,7 @@ import React from "react";
 import { Select } from "semantic-ui-react";
 import moment from "moment";
 import styled from "@emotion/styled";
-import { getAllEvents, getBasicEventById } from "../api/eventApi";
+import { getBasicEventById, getAllEvents } from "../api";
 import EventCardGroup from "../components/EventCardGroup";
 
 const FiltersSection = styled.div({
@@ -37,8 +37,8 @@ const EventCardGroupContainer = ({ query }) => {
     if (value === "all") {
       setVisibleEvents(allEvents);
     } else {
-      const comparisonDate = moment().subtract(value, "months");
-      const isAfter = date => moment(date).isAfter(comparisonDate);
+      const comparisonDate = moment.utc().subtract(value, "months");
+      const isAfter = date => moment.utc(date).isAfter(comparisonDate);
       setVisibleEvents(allEvents.filter(({ date }) => isAfter(date)));
     }
   };

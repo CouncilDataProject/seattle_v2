@@ -1,12 +1,12 @@
-import { getAllEvents, getVotesForEvent } from './eventApi'
-import { getAllPeople, getVotesForPerson } from './personApi'
-import { getResourceById } from './baseApi'
+import { getAllEvents, getBasicEventById, getEventById, getEventsByIndexedTerm } from './eventApi';
+import { getAllPeople, getVotesForPerson } from './personApi';
 
-export { 
-    getAllEvents, 
+export {
+    getAllEvents,
     getAllPeople,
+    getBasicEventById,
+    getEventById,
+    getEventsByIndexedTerm,
     getVotesForPerson,
-    getVotesForEvent,
-    getResourceById
 }
 

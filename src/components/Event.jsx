@@ -2,8 +2,8 @@ import React from "react";
 import EventSearch from "./EventSearch";
 import EventTabs from "./EventTabs";
 import ReactPlayer from "react-player";
-import moment from "moment";
 import styled from "@emotion/styled";
+import getDateTime from "../utils/getDateTime";
 
 const StyledEvent = styled.div({
   display: "flex",
@@ -170,7 +170,7 @@ const Event = ({
     <StyledEvent>
       <Header>
         <h1>{title}</h1>
-        <EventDate>Meeting Date: {moment(date, "MM-DD-YYYY HH:mm:ss").format("LLL")}</EventDate>
+        <EventDate>Meeting Date: {getDateTime(date)}</EventDate>
       </Header>
       <FixedSentinel ref={fixedSentinelRef} />
       <DummyContainer isFixed={isFixed}>
