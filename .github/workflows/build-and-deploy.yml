@@ -22,6 +22,7 @@ jobs:
         npm i
     - name: Run Tests
       run: |
+        CI=true
         npm run test
 
   lint:
