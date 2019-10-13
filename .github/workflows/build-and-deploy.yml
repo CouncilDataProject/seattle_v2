@@ -52,6 +52,11 @@ jobs:
     - name: Install Dependencies
       run: |
         npm i
-    - name: Run Deploy
-      run: |
-        npm run deploy
+    - uses: JamesIves/github-pages-deploy-action@master
+      name: Run Deploy
+      env:
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        BASE_BRANCH: master # The branch the action should deploy from.
+        BRANCH: gh-pages # The branch the action should deploy to.
+        FOLDER: build # The folder the action should deploy.
+        BUILD_SCRIPT: npm i && npm run-script predeploy # The build script the action should run prior to deploying.
