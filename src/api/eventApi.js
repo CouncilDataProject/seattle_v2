@@ -1,4 +1,5 @@
-import * as firebase from "firebase";
+import firebase from "firebase/app";
+import "firebase/storage";
 import moment from "moment";
 import natural from "natural";
 import { flatten, sortBy, reverse, groupBy, mapValues, filter } from "lodash";
@@ -91,7 +92,7 @@ export async function getVotesForEvent(minutesItems) {
     });
   });
 
-  const votePromises = formattedItems.map(item => 
+  const votePromises = formattedItems.map(item =>
     db.selectRowsAsArray(
       "vote",
       [new WhereCondition(["event_minutes_item_id", WHERE_OPERATORS.eq, item.id])]
