@@ -5,14 +5,8 @@ A clear and concise description of what the bug is.
 A clear and concise description of what you expected to happen.
 
 **System and Software:**
-* {{cookiecutter.project_slug}} Version:
-* Python Version:
-* Operating System:
-
-**Steps to Reproduce:**
-```
-Paste the command(s) you used and the output.
-```
+* Browser:
+* Exact URL:
 
  **Additional context**
 Add any other context about the problem here.
