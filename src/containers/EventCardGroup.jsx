@@ -4,6 +4,7 @@ import moment from "moment";
 import styled from "@emotion/styled";
 import { getEventsByIndexedTerm } from "../api";
 import EventCardGroup from "../components/EventCardGroup";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 
 const SearchSection = styled.div({
   margin: "1em 0 3em !important"
@@ -32,6 +33,7 @@ const EventCardGroupContainer = ({ query }) => {
   const [searchInProgress, setSearchInProgress] = React.useState(false);
   const [allEvents, setAllEvents] = React.useState([]);
   const [visibleEvents, setVisibleEvents] = React.useState([]);
+  useDocumentTitle(`${searchQuery} - Search`);
 
   const handleDateFilter = (e, { value }) => {
     if (value === "all") {

@@ -2,9 +2,12 @@ import React from "react";
 import { getEventById } from "../api";
 import { Loader } from "semantic-ui-react";
 import Event from "../components/Event";
+import useDocumentTitle from "../hooks/useDocumentTitle";
+import getDateTime from "../utils/getDateTime";
 
 const EventContainer = ({ id }) => {
   const [event, setEvent] = React.useState();
+  useDocumentTitle(event ? `${event.name} - ${getDateTime(event.date)}` : 'Loading...');
 
   React.useEffect(() => {
     try {
@@ -15,7 +18,7 @@ const EventContainer = ({ id }) => {
     } catch (e) {
       // log error and display message
     }
-  }, []);
+  }, [id]);
 
   return event ? (
     <Event
