@@ -33,7 +33,7 @@ const EventCardGroupContainer = ({ query }) => {
   const [searchInProgress, setSearchInProgress] = React.useState(false);
   const [allEvents, setAllEvents] = React.useState([]);
   const [visibleEvents, setVisibleEvents] = React.useState([]);
-  useDocumentTitle(`${searchQuery} - Search`);
+  useDocumentTitle(`Search - ${searchQuery}`);
 
   const handleDateFilter = (e, { value }) => {
     if (value === "all") {
