@@ -4,6 +4,7 @@ import moment from "moment";
 import styled from "@emotion/styled";
 import { getBasicEventById, getAllEvents } from "../api";
 import EventCardGroup from "../components/EventCardGroup";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 
 const FiltersSection = styled.div({
   margin: "1em 0 3em !important"
@@ -32,6 +33,7 @@ const EventCardGroupContainer = ({ query }) => {
   const [allEvents, setAllEvents] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [visibleEvents, setVisibleEvents] = React.useState([]);
+  useDocumentTitle('Committee Events');
 
   const handleDateFilter = (e, { value }) => {
     if (value === "all") {
