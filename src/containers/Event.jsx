@@ -5,7 +5,7 @@ import Event from "../components/Event";
 import useDocumentTitle from "../hooks/useDocumentTitle";
 import getDateTime from "../utils/getDateTime";
 
-const EventContainer = ({ id }) => {
+const EventContainer = ({ id, query }) => {
   const [event, setEvent] = React.useState();
   useDocumentTitle(event ? `${event.name} - ${getDateTime(event.date)}` : 'Loading...');
 
@@ -31,6 +31,7 @@ const EventContainer = ({ id }) => {
       minutes={event.minutes}
       transcript={event.transcript}
       votes={event.votes}
+      query={query}
     />
   ) : <Loader active/>;
 };
