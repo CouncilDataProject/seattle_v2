@@ -5,6 +5,8 @@ import { isString } from "./utils";
 export const WHERE_OPERATORS = {
     eq: "==",
     contains: "array-contains",
+    contains_any: "array-contains-any",
+    in: "in",
     gt: ">",
     lt: "<",
     gteq: ">=",

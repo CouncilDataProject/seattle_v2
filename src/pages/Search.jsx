@@ -14,11 +14,21 @@ const ContentContainer = styled(Container)({
 });
 
 const Search = ({ location }) => {
-  const { q } = queryString.parse(location.search);
+  const { q, ids, from, to, sortBy, sortOrder } = queryString.parse(location.search);
+  const committeeFilterValue = {};
+  if(ids) {
+    ids.split(',').forEach(id => committeeFilterValue[id] = true);
+  }
   return (
     <Layout>
       <ContentContainer>
-        <EventCardGroup query={q} />
+        <EventCardGroup
+          query={q}
+          committeeFilterValue={committeeFilterValue}
+          start={from || ''}
+          end={to || ''}
+          sortBy={sortBy || ''}
+          sortOrder={sortOrder || ''} />
       </ContentContainer>
     </Layout>
   );

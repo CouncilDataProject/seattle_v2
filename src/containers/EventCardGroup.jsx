@@ -1,103 +1,123 @@
 import React from "react";
-import { Input, Select } from "semantic-ui-react";
-import moment from "moment";
-import styled from "@emotion/styled";
-import { getEventsByIndexedTerm } from "../api";
+import { Button, Form } from "semantic-ui-react";
 import EventCardGroup from "../components/EventCardGroup";
+import EventsFilter from "./EventsFilter";
+import { getDateText } from "../components/SelectDateRange";
+import { getCheckboxText } from "../components/SelectFilterOptions";
+import { getSortText } from "../components/SelectSorting";
+import { FiltersSection, ResultCount, LoadingText, Results } from "./AllEvents";
 import useDocumentTitle from "../hooks/useDocumentTitle";
+import useFilter, { getSelectedOptions, isSameValue } from "../hooks/useFilter";
+import { useHistory } from "react-router-dom";
+import { getEventsByIndexedTerm } from "../api";
 
-const SearchSection = styled.div({
-  margin: "1em 0 3em !important"
-});
-const SearchBar = styled(Input)({
-  width: "50% !important",
-  marginBottom: "1em"
-});
-
-const SearchResultCount = styled.span({
-  display: "block",
-  color: "grey",
-  paddingLeft: "15px"
-});
-
-const SearchResults = styled.div({
-  paddingLeft: "15px"
-});
-
-const DateFilter = styled(Select)({
-  marginLeft: "15px !important"
-});
-
-const EventCardGroupContainer = ({ query }) => {
+const EventCardGroupContainer = ({
+  query,
+  committeeFilterValue,
+  start,
+  end,
+  sortBy,
+  sortOrder
+}) => {
+  const [initialGetEventsComplete, setInitialGetEventsComplete] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState(query);
-  const [searchInProgress, setSearchInProgress] = React.useState(false);
-  const [allEvents, setAllEvents] = React.useState([]);
   const [visibleEvents, setVisibleEvents] = React.useState([]);
+  const dateRangeFilter = useFilter({ start: start, end: end }, 'Date', '', getDateText);
+  const committeeFilter = useFilter(committeeFilterValue, 'Committee', false, getCheckboxText);
+  const sortFilter = useFilter({ by: sortBy, order: sortOrder }, 'Sort', '', getSortText);
   useDocumentTitle(`Search - ${searchQuery}`);
-
-  const handleDateFilter = (e, { value }) => {
-    if (value === "all") {
-      setVisibleEvents(allEvents);
-    } else {
-      const comparisonDate = moment.utc().subtract(value, "months");
-      const isAfter = date => moment.utc(date).isAfter(comparisonDate);
-      setVisibleEvents(allEvents.filter(({ date }) => isAfter(date)));
-    }
-  };
+  const history = useHistory();
 
   React.useEffect(() => {
-    (async () => {
-      if (searchQuery) {
-        setSearchInProgress(true);
-        const matchedEvents = await getEventsByIndexedTerm(searchQuery);
-        // filter all events by name and set visible event
-        setAllEvents(matchedEvents);
-        setVisibleEvents(matchedEvents);
-        setSearchInProgress(false);
-      }
-    })();
-  }, []);
+    //to prevent setting react state when the component is unmounted
+    let didCancel = false;
 
-  const handleSearch = async (e, { value }) => {
+    const fetchEventsByIndexedTerm = async () => {
+      const events = await getEventsByIndexedTerm(query,
+        { start: start, end: end },
+        getSelectedOptions(committeeFilterValue),
+        { by: sortBy, order: sortOrder });
+      if (!didCancel) {
+        setVisibleEvents(events);
+        setInitialGetEventsComplete(true);
+      }
+    };
+
+    fetchEventsByIndexedTerm();
+
+    return (() => {
+      didCancel = true;
+    });
+  }, [query, committeeFilterValue, start, end, sortBy, sortOrder]);
+
+  const onSearchQueryChange = (e, { value }) => {
     setSearchQuery(value);
-    setSearchInProgress(true);
-    const matchedEvents = await getEventsByIndexedTerm(value);
-    // filter all events by name and set visible event
-    setAllEvents(matchedEvents);
-    setVisibleEvents(matchedEvents);
-    setSearchInProgress(false);
   };
 
-  const filterOptions = [
-    { key: "-1", value: "all", text: "All" },
-    { key: "0.25", value: "0.25", text: "Past week" },
-    { key: "1", value: "1", text: "Past month" },
-    { key: "3", value: "3", text: "Past 3 months" },
-    { key: "6", value: "6", text: "Past 6 months" },
-    { key: "12", value: "12", text: "Past year" }
-  ];
+  const prevCommitteeRef = React.useRef();
+  const prevDateRangeRef = React.useRef();
+  const prevSortRef = React.useRef();
+  const prevSearchRef = React.useRef(query);
+
+  const handlePopupClose = () => {
+    if (!isSameValue(prevCommitteeRef.current, committeeFilter.value) ||
+      !isSameValue(prevDateRangeRef.current, dateRangeFilter.value) ||
+      !isSameValue(prevSortRef.current, sortFilter.value) ||
+      prevSearchRef.current !== searchQuery) {
+      window.scroll(0, 0);
+      setInitialGetEventsComplete(false);
+      setVisibleEvents([]);
+      const ids = getSelectedOptions(committeeFilter.value).join(',');
+      const start = dateRangeFilter.value.start;
+      const end = dateRangeFilter.value.end;
+      const sortBy = sortFilter.value.by;
+      const sortOrder = sortFilter.value.order;
+      let url = `/search?q=${searchQuery}`;
+      url += ids ? `&ids=${ids}` : '';
+      url += start ? `&from=${start}` : '';
+      url += end ? `&to=${end}` : '';
+      url += sortBy ? `&sortBy=${sortBy}` : '';
+      url += sortOrder ? `&sortOrder=${sortOrder}` : '';
+      prevCommitteeRef.current = committeeFilter.value;
+      prevDateRangeRef.current = dateRangeFilter.value;
+      prevSortRef.current = sortFilter.value;
+      prevSearchRef.current = searchQuery;
+      history.replace(url);
+    }
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    handlePopupClose();
+  };
 
   return (
     <React.Fragment>
-      <SearchSection>
-        <SearchBar
-          placeholder="Search by event name"
-          value={searchQuery}
-          onChange={handleSearch}
-          loading={searchInProgress}
-        />
-        <DateFilter
-          placeholder="Filter by date range"
-          options={filterOptions}
-          onChange={handleDateFilter}
-        />
-        {searchQuery !== "" && (
-          <SearchResultCount>{visibleEvents.length} results</SearchResultCount>
-        )}
-      </SearchSection>
-      <SearchResults>
+      <FiltersSection visible={true}>
+        <Form onSubmit={handleSubmit}>
+          <Form.Group widths='2'>
+            <Form.Input
+              placeholder='Enter a keyword to search meeting transcripts'
+              action={<Button type='submit' primary>Search</Button>}
+              value={searchQuery}
+              onChange={onSearchQueryChange} />
+          </Form.Group>
+        </Form>
+        <EventsFilter
+          filters={[committeeFilter, dateRangeFilter, sortFilter]}
+          handlePopupClose={handlePopupClose}
+          sortByOptions={[{ label: 'Committee', value: 'name' },
+          { label: 'Date', value: 'date' },
+          { label: 'Relevance ', value: 'value' }]} />
+      </FiltersSection>
+      <Results>
+        {(!initialGetEventsComplete) ? (
+          <LoadingText>Loading...</LoadingText>
+        ) : (
+            <ResultCount>{visibleEvents.length} results</ResultCount>
+          )}
         <EventCardGroup events={visibleEvents} query={searchQuery}/>
-      </SearchResults>
+      </Results>
     </React.Fragment>
   );
 };

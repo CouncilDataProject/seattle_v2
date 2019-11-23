@@ -19,4 +19,4 @@ const EventCardGroup = ({ events, query }) => {
   );
 };
 
-export default EventCardGroup;
+export default React.memo(EventCardGroup);
