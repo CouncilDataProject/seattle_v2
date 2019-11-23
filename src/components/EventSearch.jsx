@@ -54,9 +54,10 @@ const SearchResultsWrapper = styled.div({
 const EventSearch = ({
   transcript,
   handleSeek,
-  mediaQueriesMatches
+  mediaQueriesMatches,
+  query
 }) => {
-  const [transcriptSearchText, setTranscriptSearchText] = React.useState("");
+  const [transcriptSearchText, setTranscriptSearchText] = React.useState(query);
 
   const handleTranscriptSearch = (e, { value }) => {
     setTranscriptSearchText(value);

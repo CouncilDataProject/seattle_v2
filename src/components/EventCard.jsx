@@ -12,11 +12,11 @@ const StyledCardContent = styled(Card.Content)({
   padding: "0 !important"
 });
 
-const EventCard = ({ name, date, description, link }) => (
+const EventCard = ({ name, date, description, link, query }) => (
   <StyledCard fluid>
     <StyledCardContent>
       <Card.Header>
-        <Link to={link}>{name}</Link>
+        <Link to={query ?  `${link}/${query}` : link}>{name}</Link>
       </Card.Header>
       <Card.Meta>{getDateTime(date)}</Card.Meta>
       <Card.Description>{description}</Card.Description>
