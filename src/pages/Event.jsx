@@ -17,6 +17,9 @@ const EventPage = ({ match }) => {
   const location = useLocation();
 
   const parseQuery = () => {
+    // This function parses the URL since we couldn't pass the query through state at this time
+    // This solution has the potential to break if the URL changes shape in the future
+    // A state management solution would be desirable
     const urlString = location.pathname;
     const pieces = urlString.split('/');
     let query;
