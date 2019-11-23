@@ -25,7 +25,6 @@ const EventPage = ({ match }) => {
     } else {
       query = '';
     }
-    console.log(`query: ${query}`);
     return query;
   }
   
