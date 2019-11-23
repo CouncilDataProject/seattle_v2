@@ -25,6 +25,7 @@ const EventsFilter = ({
   };
 
   React.useEffect(() => {
+    //to prevent setting react state when the component is unmounted
     let didCancel = false;
 
     const fetchAllBodies = async () => {

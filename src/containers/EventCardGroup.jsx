@@ -29,6 +29,7 @@ const EventCardGroupContainer = ({
   const history = useHistory();
 
   React.useEffect(() => {
+    //to prevent setting react state when the component is unmounted
     let didCancel = false;
 
     const fetchEventsByIndexedTerm = async () => {

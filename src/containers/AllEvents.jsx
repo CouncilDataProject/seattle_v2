@@ -50,6 +50,7 @@ const EventCardGroupContainer = ({ query }) => {
   useDocumentTitle('Committee Events');
 
   React.useEffect(() => {
+    //to prevent setting react state when the component is unmounted
     let didCancel = false;
 
     const fetchAllEvents = async () => {

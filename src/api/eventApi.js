@@ -224,6 +224,12 @@ export async function getAllBodies() {
   }
 }
 
+/**
+* @param {Object} dateRange The start and end dates to filter events. 
+* @param {Array[]} bodyIDs A list of committee ids to filter events.
+* @param {Object} sort The sort by and sort order options.
+* @return {Array[]} A list of filtered events.
+*/
 export async function getFilteredEvents(dateRange, bodyIDs, sort) {
   try {
     const promises = [];
@@ -241,7 +247,7 @@ export async function getFilteredEvents(dateRange, bodyIDs, sort) {
   }
 }
 
-async function getFilteredEventsHelper(dateRange, bodyID=null) {
+async function getFilteredEventsHelper(dateRange, bodyID = null) {
   const filters = [];
   if (bodyID) {
     filters.push(new WhereCondition(['body_id', WHERE_OPERATORS.eq, bodyID]));
@@ -279,6 +285,12 @@ async function getBasicEvents(events) {
   });
 }
 
+/**
+* @param {Array[]} events The list of events to filter.
+* @param {Object} dateRange The start and end dates to filter events. 
+* @param {Array[]} bodyIDs A list of committee ids to filter events.
+* @return {Array[]} A list of filtered events.
+*/
 function filterEvents(events, dateRange, bodyIDs) {
   return events.filter(event => {
     if (bodyIDs.length && bodyIDs.indexOf(event.body_id) === -1) {
@@ -291,7 +303,7 @@ function filterEvents(events, dateRange, bodyIDs) {
 
     if (dateRange.end) {
       const endDate = moment.utc(dateRange.end, 'YYYY-MM-DD').add(1, 'days').subtract(1, 'milliseconds');
-      if(moment.utc(event.date).isAfter(endDate)) {
+      if (moment.utc(event.date).isAfter(endDate)) {
         return false;
       }
     }
@@ -300,6 +312,12 @@ function filterEvents(events, dateRange, bodyIDs) {
   });
 }
 
+/**
+* @param {Array[]} events The list of events to sort.
+* @param {Object} sortOption The sort by and sort order options.
+* @param {boolean} isSearch Whether the list of events is from the search page.
+* @return {Array[]} A list of sorted events according to sortOption.
+*/
 function sortEvents(events, sortOption, isSearch = false) {
   if (sortOption.by && sortOption.order) {
     events = orderBy(events, [sortOption.by], [sortOption.order]);
