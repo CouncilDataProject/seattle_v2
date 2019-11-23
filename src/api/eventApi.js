@@ -2,14 +2,23 @@ import firebase from "firebase/app";
 import "firebase/storage";
 import moment from "moment";
 import natural from "natural";
-import { flatten, sortBy, reverse, groupBy, mapValues, filter } from "lodash";
+import { flatten, orderBy, sortBy, groupBy, mapValues, filter } from "lodash";
 import { db, WhereCondition, WHERE_OPERATORS, OrderCondition, ORDER_OPERATORS } from "./database";
 import { fetchJson } from "./utils";
 
 const storage = firebase.storage();
 
 export async function getAllEvents() {
-  return await db.selectRowsAsArray("event", [], new OrderCondition(["event_datetime", ORDER_OPERATORS.desc]));
+  try {
+    const allEvents = await db.selectRowsAsArray(
+      "event",
+      [],
+      new OrderCondition(["event_datetime", ORDER_OPERATORS.desc])
+    );
+    return await getBasicEvents(allEvents);
+  } catch (e) {
+    return Promise.reject(e);
+  }
 }
 
 export async function getEventMinutes(eventId, indexOrder) {
@@ -150,30 +159,15 @@ export async function getEventById(id) {
   }
 }
 
-export async function getBasicEventById(id) {
-  try {
-    const event = await db.selectRowById("event", id);
-    const body = await getEventBody(event.body_id);
-
-    return {
-      id,
-      name: body.name,
-      description: body.description,
-      date: moment
-        .utc(event.event_datetime.toMillis())
-        .toISOString()
-    };
-  } catch (e) {
-    return Promise.reject(e);
-  }
-}
-
-export async function getEventsByIndexedTerm(term) {
+export async function getEventsByIndexedTerm(term, dateRange = {}, bodyIDs = [], sort = {}) {
   const valueMin = 0;
   try {
     natural.PorterStemmer.attach();
 
     const stemmedTokens = term.tokenizeAndStem();
+    if (stemmedTokens.length === 0) {
+      return [];
+    }
 
     // get matches for each term
     const matches = await Promise.all(
@@ -198,21 +192,138 @@ export async function getEventsByIndexedTerm(term) {
         )
     );
 
-    // reverse to get highest value first
-    const sortedSummedMatches = reverse(
-      sortBy(
-        filter(summedMatchValueByEventId, ({ value }) => value >= valueMin),
-        ({ value }) => value
-      )
+    const sortedSummedMatches = filter(summedMatchValueByEventId, ({ value }) => value > valueMin);
+    let events = await Promise.all(
+      sortedSummedMatches.map(({ event_id }) => db.selectRowById('event', event_id))
     );
 
-    // fetch events in order of value and return
-    const events = await Promise.all(
-      sortedSummedMatches.map(({ event_id }) => getBasicEventById(event_id))
-    );
+    events = await getBasicEvents(events);
 
+    events.forEach((event, i) => {
+      event.id = sortedSummedMatches[i].event_id;
+      event.value = sortedSummedMatches[i].value;
+    });
+
+    events = filterEvents(events, dateRange, bodyIDs);
+    events = sortEvents(events, sort, true);
     return events;
   } catch (e) {
     return Promise.reject(e);
   }
+}
+
+export async function getAllBodies() {
+  try {
+    return db.selectRowsAsArray(
+      'body',
+      [],
+      new OrderCondition(['name', ORDER_OPERATORS.asc])
+    );
+  } catch (e) {
+    return Promise.reject(e);
+  }
+}
+
+/**
+* @param {Object} dateRange The start and end dates to filter events. 
+* @param {Array[]} bodyIDs A list of committee ids to filter events.
+* @param {Object} sort The sort by and sort order options.
+* @return {Array[]} A list of filtered events.
+*/
+export async function getFilteredEvents(dateRange, bodyIDs, sort) {
+  try {
+    const promises = [];
+    if (bodyIDs.length) {
+      bodyIDs.forEach(id => promises.push(getFilteredEventsHelper(dateRange, id)));
+    } else {
+      promises.push(getFilteredEventsHelper(dateRange));
+    }
+    let events = flatten(await Promise.all(promises));
+    events = await getBasicEvents(events);
+    events = sortEvents(events, sort);
+    return events;
+  } catch (e) {
+    return Promise.reject(e);
+  }
+}
+
+async function getFilteredEventsHelper(dateRange, bodyID = null) {
+  const filters = [];
+  if (bodyID) {
+    filters.push(new WhereCondition(['body_id', WHERE_OPERATORS.eq, bodyID]));
+  }
+  if (dateRange.start) {
+    const startDate = moment.utc(dateRange.start, 'YYYY-MM-DD')
+    const start = firebase.firestore.Timestamp.fromMillis(startDate.valueOf());
+    filters.push(new WhereCondition(['event_datetime', WHERE_OPERATORS.gteq, start]));
+  }
+  if (dateRange.end) {
+    const endDate = moment.utc(dateRange.end, 'YYYY-MM-DD').add(1, 'days').subtract(1, 'milliseconds');
+    const end = firebase.firestore.Timestamp.fromMillis(endDate.valueOf());
+    filters.push(new WhereCondition(['event_datetime', WHERE_OPERATORS.lteq, end]));
+  }
+
+  return db.selectRowsAsArray(
+    'event',
+    filters
+  );
+}
+
+async function getBasicEvents(events) {
+  const allBodies = await getAllBodies();
+  return events.map(event => {
+    const body = allBodies.find(body => body.id === event.body_id);
+    return {
+      id: event.id,
+      body_id: body.id,
+      name: body.name,
+      description: body.description,
+      date: moment
+        .utc(event.event_datetime.toMillis())
+        .toISOString()
+    };
+  });
+}
+
+/**
+* @param {Array[]} events The list of events to filter.
+* @param {Object} dateRange The start and end dates to filter events. 
+* @param {Array[]} bodyIDs A list of committee ids to filter events.
+* @return {Array[]} A list of filtered events.
+*/
+function filterEvents(events, dateRange, bodyIDs) {
+  return events.filter(event => {
+    if (bodyIDs.length && bodyIDs.indexOf(event.body_id) === -1) {
+      return false;
+    }
+
+    if (dateRange.start && moment.utc(event.date).isBefore(moment.utc(dateRange.start))) {
+      return false;
+    }
+
+    if (dateRange.end) {
+      const endDate = moment.utc(dateRange.end, 'YYYY-MM-DD').add(1, 'days').subtract(1, 'milliseconds');
+      if (moment.utc(event.date).isAfter(endDate)) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+}
+
+/**
+* @param {Array[]} events The list of events to sort.
+* @param {Object} sortOption The sort by and sort order options.
+* @param {boolean} isSearch Whether the list of events is from the search page.
+* @return {Array[]} A list of sorted events according to sortOption.
+*/
+function sortEvents(events, sortOption, isSearch = false) {
+  if (sortOption.by && sortOption.order) {
+    events = orderBy(events, [sortOption.by], [sortOption.order]);
+  } else {
+    events = orderBy(events, [isSearch ? 'value' : 'date'], [ORDER_OPERATORS.desc]);
+  }
+
+  return events;
 }
