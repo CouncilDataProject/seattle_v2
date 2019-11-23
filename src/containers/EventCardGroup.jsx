@@ -116,7 +116,7 @@ const EventCardGroupContainer = ({
         ) : (
             <ResultCount>{visibleEvents.length} results</ResultCount>
           )}
-        <EventCardGroup events={visibleEvents} />
+        <EventCardGroup events={visibleEvents} query={searchQuery}/>
       </Results>
     </React.Fragment>
   );

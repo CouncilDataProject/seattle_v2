@@ -2,7 +2,7 @@ import React from "react";
 import EventCard from "./EventCard";
 import { Card } from "semantic-ui-react";
 
-const EventCardGroup = ({ events }) => {
+const EventCardGroup = ({ events, query }) => {
   return (
     <Card.Group centered>
       {events.map(({ name, date, description, id }) => (
@@ -12,6 +12,7 @@ const EventCardGroup = ({ events }) => {
           date={date}
           description={description}
           link={`/events/${id}`}
+          query={query}
         />
       ))}
     </Card.Group>

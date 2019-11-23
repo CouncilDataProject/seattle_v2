@@ -80,7 +80,8 @@ const Event = ({
   scPageUrl,
   videoUrl,
   transcript,
-  votes
+  votes,
+  query
 }) => {
   const fixedSentinelRef = React.useRef(null);
   const videoPlayerRef = React.useRef(null);
@@ -194,6 +195,7 @@ const Event = ({
         transcript={transcript}
         handleSeek={handleSeek}
         mediaQueriesMatches={mediaQueriesMatches}
+        query={query}
       />
       <EventTabs
         minutes={minutes}
