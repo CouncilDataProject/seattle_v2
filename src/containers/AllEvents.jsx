@@ -1,88 +1,110 @@
 import React from "react";
-import { Select } from "semantic-ui-react";
-import moment from "moment";
 import styled from "@emotion/styled";
-import { getBasicEventById, getAllEvents } from "../api";
 import EventCardGroup from "../components/EventCardGroup";
+import EventsFilter from "./EventsFilter";
+import { getDateText } from "../components/SelectDateRange";
+import { getCheckboxText } from "../components/SelectFilterOptions";
+import { getSortText } from "../components/SelectSorting";
 import useDocumentTitle from "../hooks/useDocumentTitle";
+import useFilter, { getSelectedOptions, isSameValue } from "../hooks/useFilter";
+import { getAllEvents, getFilteredEvents } from "../api";
 
-const FiltersSection = styled.div({
-  margin: "1em 0 3em !important"
+export const FiltersSection = styled.div({
+  position: "sticky",
+  top: "0",
+  backgroundColor: "white",
+  zIndex: "1",
+  padding: "1em 0 2em",
+  "> .ui.button": {
+    marginBottom: "0.5em",
+    "@media(max-width:500px)": {
+      width: "100%"
+    }
+  }
 });
 
-const ResultCount = styled.span({
+export const ResultCount = styled.span({
   display: "block",
   color: "grey",
-  paddingLeft: "15px",
-  paddingTop: "8px"
+  marginBottom: "2em"
 });
 
-const LoadingText = styled.span({
+export const LoadingText = styled.span({
   color: "grey",
   fontWeight: "700",
-  fontSize: "18px"
+  fontSize: "1.5em",
+  marginTop: "1em",
 });
 
-const Results = styled.div({
-  paddingLeft: "15px"
+export const Results = styled.div({
+  paddingLeft: "1em"
 });
-
-const DateFilter = styled(Select)({});
 
 const EventCardGroupContainer = ({ query }) => {
-  const [allEvents, setAllEvents] = React.useState([]);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [initialGetEventsComplete, setInitialGetEventsComplete] = React.useState(false);
+  const [filterEventsComplete, setFilterEventsComplete] = React.useState(true);
   const [visibleEvents, setVisibleEvents] = React.useState([]);
+  const dateRangeFilter = useFilter({ start: '', end: '' }, 'Date', '', getDateText);
+  const committeeFilter = useFilter({}, 'Committee', false, getCheckboxText);
+  const sortFilter = useFilter({ by: '', order: '' }, 'Sort', '', getSortText);
   useDocumentTitle('Committee Events');
 
-  const handleDateFilter = (e, { value }) => {
-    if (value === "all") {
-      setVisibleEvents(allEvents);
-    } else {
-      const comparisonDate = moment.utc().subtract(value, "months");
-      const isAfter = date => moment.utc(date).isAfter(comparisonDate);
-      setVisibleEvents(allEvents.filter(({ date }) => isAfter(date)));
-    }
-  };
-
   React.useEffect(() => {
-    (async () => {
-      setIsLoading(true);
+    let didCancel = false;
+
+    const fetchAllEvents = async () => {
       const allEvents = await getAllEvents();
-      const basicEventData = await Promise.all(
-        allEvents.map(({ id }) => getBasicEventById(id))
-      );
-      setAllEvents(basicEventData);
-      setVisibleEvents(basicEventData);
-      setIsLoading(false);
-    })();
+      if (!didCancel) {
+        setVisibleEvents(allEvents);
+        setInitialGetEventsComplete(true);
+      }
+    };
+
+    fetchAllEvents();
+
+    return (() => {
+      didCancel = true;
+    });
   }, []);
 
-  const filterOptions = [
-    { key: "-1", value: "all", text: "All" },
-    { key: "0.25", value: "0.25", text: "Past week" },
-    { key: "1", value: "1", text: "Past month" },
-    { key: "3", value: "3", text: "Past 3 months" },
-    { key: "6", value: "6", text: "Past 6 months" },
-    { key: "12", value: "12", text: "Past year" }
-  ];
+  const prevCommitteeRef = React.useRef();
+  const prevDateRangeRef = React.useRef();
+  const prevSortRef = React.useRef();
+
+  const handlePopupClose = async () => {
+    if (!isSameValue(prevCommitteeRef.current, committeeFilter.value) ||
+      !isSameValue(prevDateRangeRef.current, dateRangeFilter.value) ||
+      !isSameValue(prevSortRef.current, sortFilter.value)) {
+      window.scroll(0, 0);
+      setFilterEventsComplete(false);
+      setVisibleEvents([]);
+      const events = await getFilteredEvents(dateRangeFilter.value,
+        getSelectedOptions(committeeFilter.value),
+        sortFilter.value);
+      setVisibleEvents(events);
+      prevCommitteeRef.current = committeeFilter.value;
+      prevDateRangeRef.current = dateRangeFilter.value;
+      prevSortRef.current = sortFilter.value;
+      setFilterEventsComplete(true);
+    }
+  }
 
   return (
     <React.Fragment>
       <FiltersSection>
-        <DateFilter
-          placeholder="Filter by date range"
-          options={filterOptions}
-          onChange={handleDateFilter}
-        />
-        <ResultCount>{visibleEvents.length} results</ResultCount>
+        <EventsFilter
+          filters={[committeeFilter, dateRangeFilter, sortFilter]}
+          handlePopupClose={handlePopupClose}
+          sortByOptions={[{ label: 'Committee', value: 'name' },
+          { label: 'Date', value: 'date' }]} />
       </FiltersSection>
       <Results>
-        {isLoading ? (
+        {(!initialGetEventsComplete || !filterEventsComplete) ? (
           <LoadingText>Loading...</LoadingText>
         ) : (
-          <EventCardGroup events={visibleEvents} />
-        )}
+            <ResultCount>{visibleEvents.length} results</ResultCount>
+          )}
+        <EventCardGroup events={visibleEvents} />
       </Results>
     </React.Fragment>
   );

@@ -1,12 +1,12 @@
-import { getAllEvents, getBasicEventById, getEventById, getEventsByIndexedTerm } from './eventApi';
+import { getAllBodies, getAllEvents, getEventById, getEventsByIndexedTerm, getFilteredEvents } from './eventApi';
 import { getAllPeople, getVotesForPerson } from './personApi';
 
 export {
+    getAllBodies,
     getAllEvents,
     getAllPeople,
-    getBasicEventById,
     getEventById,
     getEventsByIndexedTerm,
+    getFilteredEvents,
     getVotesForPerson,
 }
-
