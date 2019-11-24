@@ -91,7 +91,7 @@ const VotingTable = ({ votingData, isPerson }) => (
             } else {
               return (
                 <React.Fragment key={headerMetaData.accessor}>
-                  <Table.Cell width={'1'}>
+                  <Table.Cell singleLine={true}>
                     {votingDatum.voteForPerson}
                   </Table.Cell>
                   <Table.Cell>
