@@ -7,7 +7,7 @@ const cssCheckbox = { marginRight: '0.5em' }
 
 const Person = ({personHistory: {full_name, email, phone, website, votes}}) => {
   // == Get unique vote cast types from votes list.
-  const votingOptions = _.uniq(votes.map(vote => vote.voteForPerson))
+  const votingOptions = _.compact(_.uniq(votes.map(vote => vote.voteForPerson)))
   // == Selected votes for checkboxes.
   const [selectedVoteFilters, setSelectedVoteFilters] = useState([])
   // == Votes filtered to be displayed in table.
