@@ -3,7 +3,7 @@ import { Form } from 'semantic-ui-react';
 import styled from '@emotion/styled';
 import isSubstring from '../utils/isSubstring'
 
-const SearchCommitteeInput = styled(Form.Input)({
+const OptionQueryInput = styled(Form.Input)({
   paddingRight: '.8em'
 });
 
@@ -16,27 +16,30 @@ export const getCheckboxText = (filterValue, filterName) => {
 const SelectFilterOptions = ({
   filter,
   options,
-  searchCommitteeQuery,
-  setSearchCommitteeQuery,
+  optionQuery,
+  setOptionQuery,
 }) => {
-  const { value, handleChange } = filter;
+  const { filterName, value, handleChange } = filter;
 
   const onChange = (e, { name, checked }) => {
     handleChange(name, checked);
   };
 
-  const onSearchCommiteeChange = (e, { value }) => {
-    setSearchCommitteeQuery(value);
+  const onOptionQueryChange = (e, { value }) => {
+    setOptionQuery(value);
   };
 
-  const filteredOptions = options.filter(({ text }) => isSubstring(text, searchCommitteeQuery));
+  let filteredOptions = options;
+  if (options.length > 5) {
+    filteredOptions = options.filter(({ text }) => isSubstring(text, optionQuery));
+  }
 
   return (
     <Form>
-      <SearchCommitteeInput
-        placeholder='Search Committee Names'
-        value={searchCommitteeQuery}
-        onChange={onSearchCommiteeChange} />
+      {options.length > 5 && <OptionQueryInput
+        placeholder={`Search ${filterName} Options`}
+        value={optionQuery}
+        onChange={onOptionQueryChange} />}
       {filteredOptions.map(option =>
         <Form.Checkbox
           key={option.name}

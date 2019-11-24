@@ -53,7 +53,7 @@ function useFilter(initialState, filterName, defaultData, textRepFunction) {
     return textRepFunction(value, filterName);
   }
 
-  return { value, set, clear, handleChange, getTextRep };
+  return { filterName, value, set, clear, handleChange, getTextRep };
 }
 
 export default useFilter;

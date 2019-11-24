@@ -13,7 +13,7 @@ const EventsFilter = ({
   const mountNodeRef = React.useRef();
   const [allBodies, setAllBodies] = React.useState([]);
   const [committeeFilter, dateRangeFilter, sortFilter] = filters;
-  const [searchCommitteeQuery, setSearchCommitteeQuery] = React.useState('')
+  const [committeeQuery, setCommitteeQuery] = React.useState('');
 
   const getCommitteeNameOptions = () => {
     return allBodies.map(body => {
@@ -52,8 +52,8 @@ const EventsFilter = ({
         <SelectFilterOptions
           filter={committeeFilter}
           options={getCommitteeNameOptions()}
-          searchCommitteeQuery={searchCommitteeQuery}
-          setSearchCommitteeQuery={setSearchCommitteeQuery} />
+          optionQuery={committeeQuery}
+          setOptionQuery={setCommitteeQuery} />
       </FilterPopup>
       <FilterPopup
         filter={dateRangeFilter}
