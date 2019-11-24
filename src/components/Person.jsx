@@ -12,17 +12,29 @@ const Person = ({personHistory: {full_name, email, phone, website, votes}}) => {
   const [selectedVoteFilters, setSelectedVoteFilters] = useState([])
   // == Votes filtered to be displayed in table.
   const [filteredVotes, setFilteredVotes] = useState(votes)
-  
-  // == Handler for checkboxes and refiltering table results.
+
   const onSelectedVoteFilterChange = (event, { label }) => {
+    // == Set filters
+    let selectedFilters = []
     if (selectedVoteFilters.includes(label)) {
-      setSelectedVoteFilters(_.without(selectedVoteFilters, label))
+      // == Filter was unchecked
+      selectedFilters = _.without(selectedVoteFilters, label)
+      setSelectedVoteFilters(selectedFilters)
     } else {
+      // == Filter was checked.
       selectedVoteFilters.push(label)
-      setSelectedVoteFilters(selectedVoteFilters)
+      selectedFilters = selectedVoteFilters
+      setSelectedVoteFilters(selectedFilters)
     }
 
-    setFilteredVotes(_.filter(votes, vote => selectedVoteFilters.includes(vote.voteForPerson)))
+    // == Set table results
+    if (_.isEmpty(selectedFilters)) {
+      // == If no filters set, display all votes
+      setFilteredVotes(votes)
+    } else {
+      // == Otherwise filter them by the selected filters.
+      setFilteredVotes(_.filter(votes, vote => selectedFilters.includes(vote.voteForPerson)))
+    }
   }
 
   // == Make a checkbox for each vote cast type in the voting table.
