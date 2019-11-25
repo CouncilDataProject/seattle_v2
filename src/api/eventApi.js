@@ -158,7 +158,17 @@ export async function getEventById(id) {
     return Promise.reject(e);
   }
 }
-
+/**
+* @param {string} term The search term
+* @param {Object} dateRange The start and end dates to filter search results.
+* @param {string} dateRange.start
+* @param {string} dateRange.end 
+* @param {string[]} bodyIDs A list of committee/body ids filter search results.
+* @param {Object} sort The sort by and sort order options.
+* @param {string} sort.by
+* @param {string} sort.order 
+* @return {Object[]} A list of searched events filtered by dateRange, bodyIDs, and sorted by sort.
+*/
 export async function getEventsByIndexedTerm(term, dateRange = {}, bodyIDs = [], sort = {}) {
   const valueMin = 0;
   try {
@@ -192,6 +202,7 @@ export async function getEventsByIndexedTerm(term, dateRange = {}, bodyIDs = [],
         )
     );
 
+    // get only events with summed values > valueMin
     const sortedSummedMatches = filter(summedMatchValueByEventId, ({ value }) => value > valueMin);
     let events = await Promise.all(
       sortedSummedMatches.map(({ event_id }) => db.selectRowById('event', event_id))
@@ -225,10 +236,14 @@ export async function getAllBodies() {
 }
 
 /**
-* @param {Object} dateRange The start and end dates to filter events. 
-* @param {Array[]} bodyIDs A list of committee ids to filter events.
+* @param {Object} dateRange The start and end dates to filter events.
+* @param {string} dateRange.start
+* @param {string} dateRange.end 
+* @param {string[]} bodyIDs A list of committee/body ids to filter events.
 * @param {Object} sort The sort by and sort order options.
-* @return {Array[]} A list of filtered events.
+* @param {string} sort.by
+* @param {string} sort.order 
+* @return {Object[]} A list of filtered events.
 */
 export async function getFilteredEvents(dateRange, bodyIDs, sort) {
   try {
@@ -269,6 +284,10 @@ async function getFilteredEventsHelper(dateRange, bodyID = null) {
   );
 }
 
+/**
+* @param {Object[]} events The list of events
+* @return {Object[]} The formatted list of events with basic information for front-end.
+*/
 async function getBasicEvents(events) {
   const allBodies = await getAllBodies();
   return events.map(event => {
@@ -286,10 +305,12 @@ async function getBasicEvents(events) {
 }
 
 /**
-* @param {Array[]} events The list of events to filter.
-* @param {Object} dateRange The start and end dates to filter events. 
-* @param {Array[]} bodyIDs A list of committee ids to filter events.
-* @return {Array[]} A list of filtered events.
+* @param {Object[]} events The list of events to filter.
+* @param {Object} dateRange The start and end dates to filter events.
+* @param {string} dateRange.start
+* @param {string} dateRange.end 
+* @param {string[]} bodyIDs A list of committee/body ids to filter events.
+* @return {Object[]} A list of filtered events.
 */
 function filterEvents(events, dateRange, bodyIDs) {
   return events.filter(event => {
@@ -313,10 +334,12 @@ function filterEvents(events, dateRange, bodyIDs) {
 }
 
 /**
-* @param {Array[]} events The list of events to sort.
+* @param {Object[]} events The list of events to sort.
 * @param {Object} sortOption The sort by and sort order options.
+* @param {string} sortOption.by
+* @param {string} sortOption.order 
 * @param {boolean} isSearch Whether the list of events is from the search page.
-* @return {Array[]} A list of sorted events according to sortOption.
+* @return {Object[]} A list of events sorted according to sortOption.
 */
 function sortEvents(events, sortOption, isSearch = false) {
   if (sortOption.by && sortOption.order) {

@@ -27,7 +27,7 @@ export function isSameValue(prevValue, currentValue) {
 
 /**
 * @param {Object} initialState The inital filter Object, where the keys are the filter options and values are the filter values.
-* @param {Array[]} filterName The name of the filter.
+* @param {string} filterName The name of the filter.
 * @param {(boolean|string)} defaultData The default filter value.
 * @param {Function} textRepFunction The function to generate the text represenation of the filter object.
 * @return {Object} An object that encapsulates the fitler object state along with other methods to handle state changes.

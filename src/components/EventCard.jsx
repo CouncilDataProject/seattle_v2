@@ -16,7 +16,12 @@ const EventCard = ({ name, date, description, link, query }) => (
   <StyledCard fluid>
     <StyledCardContent>
       <Card.Header>
-        <Link to={query ?  `${link}/${query}` : link}>{name}</Link>
+        <Link to={{
+          pathname: `${link}`,
+          state: { query: query }
+        }}>
+          {name}
+        </Link>
       </Card.Header>
       <Card.Meta>{getDateTime(date)}</Card.Meta>
       <Card.Description>{description}</Card.Description>
