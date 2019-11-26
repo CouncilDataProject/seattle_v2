@@ -3,15 +3,23 @@ import { Form } from 'semantic-ui-react';
 import styled from '@emotion/styled';
 import isSubstring from '../utils/isSubstring'
 
+/**
+ * Generate the text representation of a list of checkboxes, by appending the number of selected checkboxes
+ * to the defaultText.
+ * @param {Object} checkboxes The object representation of the list of checkboxes, 
+ * where the keys are the different options, and each value is a boolean(whether the option is selected).
+ * @param {string} defaultText The default text representation, when no checkboxes are selected.
+ * @returns {string} The text representation.
+ */
+export const getCheckboxText = (checkboxes, defaultText) => {
+  const numberOfSelectedCheckbox = Object.values(checkboxes).filter(value => value).length;
+  const textRep = numberOfSelectedCheckbox ? `${defaultText} : ${numberOfSelectedCheckbox}` : defaultText;
+  return textRep;
+};
+
 const OptionQueryInput = styled(Form.Input)({
   paddingRight: '.8em'
 });
-
-export const getCheckboxText = (filterValue, filterName) => {
-  const numberOfSelectedCheckbox = Object.values(filterValue).filter(value => value).length;
-  const textRep = numberOfSelectedCheckbox ? `${filterName} : ${numberOfSelectedCheckbox}` : filterName;
-  return textRep;
-};
 
 const SelectFilterOptions = ({
   filter,

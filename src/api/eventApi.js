@@ -163,11 +163,13 @@ export async function getEventById(id) {
 * @param {Object} dateRange The start and end dates to filter search results.
 * @param {string} dateRange.start
 * @param {string} dateRange.end 
-* @param {string[]} bodyIDs A list of committee/body ids filter search results.
+* @param {string[]} bodyIDs The list of committee/body ids to filter search results.
 * @param {Object} sort The sort by and sort order options.
 * @param {string} sort.by
 * @param {string} sort.order 
-* @return {Object[]} A list of searched events filtered by dateRange, bodyIDs, and sorted by sort.
+* @return {Object[]} The search results, where each event's date is within
+* the date range and the event's body id is in bodyIDs(if it's non-empty). The search
+* results are sorted according to the sort options.
 */
 export async function getEventsByIndexedTerm(term, dateRange = {}, bodyIDs = [], sort = {}) {
   const valueMin = 0;
@@ -202,7 +204,7 @@ export async function getEventsByIndexedTerm(term, dateRange = {}, bodyIDs = [],
         )
     );
 
-    // get only events with summed values > valueMin
+    // get only event id with summed values > valueMin
     const sortedSummedMatches = filter(summedMatchValueByEventId, ({ value }) => value > valueMin);
     let events = await Promise.all(
       sortedSummedMatches.map(({ event_id }) => db.selectRowById('event', event_id))
@@ -239,11 +241,13 @@ export async function getAllBodies() {
 * @param {Object} dateRange The start and end dates to filter events.
 * @param {string} dateRange.start
 * @param {string} dateRange.end 
-* @param {string[]} bodyIDs A list of committee/body ids to filter events.
+* @param {string[]} bodyIDs The list of committee/body ids to filter events.
 * @param {Object} sort The sort by and sort order options.
 * @param {string} sort.by
 * @param {string} sort.order 
-* @return {Object[]} A list of filtered events.
+* @return {Object[]} A list of events, where each event's date is within
+* the date range and the event's body id is in bodyIDs(if it's non-empty). The events
+* are sorted according to the sort options.
 */
 export async function getFilteredEvents(dateRange, bodyIDs, sort) {
   try {
@@ -307,10 +311,11 @@ async function getBasicEvents(events) {
 /**
 * @param {Object[]} events The list of events to filter.
 * @param {Object} dateRange The start and end dates to filter events.
-* @param {string} dateRange.start
+* @param {string} dateRange.start 
 * @param {string} dateRange.end 
-* @param {string[]} bodyIDs A list of committee/body ids to filter events.
-* @return {Object[]} A list of filtered events.
+* @param {string[]} bodyIDs The list of committee/body ids to filter events.
+* @return {Object[]} A list of events, where each event's date is within
+* date range and the event's body id is in bodyIDs(if its non-empty).
 */
 function filterEvents(events, dateRange, bodyIDs) {
   return events.filter(event => {

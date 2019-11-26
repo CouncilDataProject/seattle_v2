@@ -7,7 +7,7 @@ import { getCheckboxText } from "../components/SelectFilterOptions";
 import { getSortText } from "../components/SelectSorting";
 import { FiltersSection, ResultCount, LoadingText, Results } from "./AllEvents";
 import useDocumentTitle from "../hooks/useDocumentTitle";
-import useFilter, { getSelectedOptions, isSameValue } from "../hooks/useFilter";
+import useFilter, { getSelectedOptions } from "../hooks/useFilter";
 import { useHistory } from "react-router-dom";
 import { getEventsByIndexedTerm } from "../api";
 
@@ -56,10 +56,12 @@ const EventCardGroupContainer = ({
   const prevSortRef = React.useRef();
   const prevSearchRef = React.useRef(query);
 
+  // handlePopupClose is a callback for when one of the FilterPopups in EventsFilter closes. 
+  // It will perform filtering, depending on whether any of filter values or the searchQuery have changed.
   const handlePopupClose = () => {
-    if (!isSameValue(prevCommitteeRef.current, committeeFilter.value) ||
-      !isSameValue(prevDateRangeRef.current, dateRangeFilter.value) ||
-      !isSameValue(prevSortRef.current, sortFilter.value) ||
+    if (!committeeFilter.isSameValue(prevCommitteeRef.current) ||
+      !dateRangeFilter.isSameValue(prevDateRangeRef.current) ||
+      !sortFilter.isSameValue(prevSortRef.current) ||
       prevSearchRef.current !== searchQuery) {
       window.scroll(0, 0);
       setInitialGetEventsComplete(false);

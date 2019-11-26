@@ -10,7 +10,7 @@ const EventsFilter = ({
   handlePopupClose,
   sortByOptions
 }) => {
-  const mountNodeRef = React.useRef();
+  const mountNodeRef = React.useRef(); //where the FilterPopup will be mounted
   const [allBodies, setAllBodies] = React.useState([]);
   const [committeeFilter, dateRangeFilter, sortFilter] = filters;
   const [committeeQuery, setCommitteeQuery] = React.useState('');
