@@ -15,8 +15,7 @@ const StyledCardContent = styled(Card.Content)({
 const EventCard = ({ name, date, description, link, query }) => (
   <StyledCard fluid>
     <StyledCardContent>
-      <Card.Header>
-        <Link to={query ?  `${link}/${query}` : link}>{name}</Link>
+      <Card.Header><Link to={query ?  `${link}/${query.trim().replace(/\s+/g, '+')}` : link}>{name}</Link>
       </Card.Header>
       <Card.Meta>{getDateTime(date)}</Card.Meta>
       <Card.Description>{description}</Card.Description>

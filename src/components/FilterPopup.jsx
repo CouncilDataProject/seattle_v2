@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button, Header, Icon, Popup } from 'semantic-ui-react';
 import styled from '@emotion/styled';
-import { isActive } from '../hooks/useFilter';
 
 const ButtonContainer = styled.div({
   display: 'flex',
@@ -36,7 +35,7 @@ const FilterPopup = ({
   mountNodeRef,
   children
 }) => {
-  const { value, clear, getTextRep } = filter;
+  const { clear, getTextRep, isActive } = filter;
   const [open, setOpen] = React.useState(false);
 
   const handleOpen = () => {
@@ -69,7 +68,7 @@ const FilterPopup = ({
         <Button
           icon
           labelPosition='right'
-          basic={!isActive(value)}>
+          basic={!isActive()}>
           <Icon name='angle down' />
           {getTextRep()}
         </Button>}

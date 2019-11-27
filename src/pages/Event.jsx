@@ -2,7 +2,6 @@ import React from "react";
 import Event from "../containers/Event";
 import { Container } from "semantic-ui-react";
 import styled from "@emotion/styled";
-import { useLocation } from "react-router-dom";
 
 const Layout = styled(Container)({
   minHeight: "100vh"
@@ -13,8 +12,7 @@ const ContentContainer = styled(Container)({
   marginBottom: "5em !important"
 });
 
-const EventPage = ({ match }) => {
-  const location = useLocation();
+const EventPage = ({ match, location }) => {
 
   const parseQuery = () => {
     // This function parses the URL since we couldn't pass the query through state at this time
@@ -25,16 +23,17 @@ const EventPage = ({ match }) => {
     let query;
     if (pieces.length === 4) {
       query = pieces[pieces.length - 1];
+      query = query.trim().replace(/\+/g, ' ');
     } else {
       query = '';
     }
     return query;
   }
-  
+
   return (
     <Layout>
       <ContentContainer>
-        <Event id={match.params.id} query={parseQuery()}/>
+        <Event id={match.params.id} query={parseQuery()} />
       </ContentContainer>
     </Layout>
   );

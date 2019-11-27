@@ -6,7 +6,7 @@ import { getDateText } from "../components/SelectDateRange";
 import { getCheckboxText } from "../components/SelectFilterOptions";
 import { getSortText } from "../components/SelectSorting";
 import useDocumentTitle from "../hooks/useDocumentTitle";
-import useFilter, { getSelectedOptions, isSameValue } from "../hooks/useFilter";
+import useFilter, { getSelectedOptions } from "../hooks/useFilter";
 import { getAllEvents, getFilteredEvents } from "../api";
 
 export const FiltersSection = styled.div({
@@ -72,10 +72,12 @@ const EventCardGroupContainer = ({ query }) => {
   const prevDateRangeRef = React.useRef();
   const prevSortRef = React.useRef();
 
+  // handlePopupClose is a callback for when one of the FilterPopups in EventsFilter closes. 
+  // It will perform filtering, depending on whether any of filter values have changed.
   const handlePopupClose = async () => {
-    if (!isSameValue(prevCommitteeRef.current, committeeFilter.value) ||
-      !isSameValue(prevDateRangeRef.current, dateRangeFilter.value) ||
-      !isSameValue(prevSortRef.current, sortFilter.value)) {
+    if (!committeeFilter.isSameValue(prevCommitteeRef.current) ||
+      !dateRangeFilter.isSameValue(prevDateRangeRef.current) ||
+      !sortFilter.isSameValue(prevSortRef.current)) {
       window.scroll(0, 0);
       setFilterEventsComplete(false);
       setVisibleEvents([]);

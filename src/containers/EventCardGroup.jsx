@@ -7,24 +7,21 @@ import { getCheckboxText } from "../components/SelectFilterOptions";
 import { getSortText } from "../components/SelectSorting";
 import { FiltersSection, ResultCount, LoadingText, Results } from "./AllEvents";
 import useDocumentTitle from "../hooks/useDocumentTitle";
-import useFilter, { getSelectedOptions, isSameValue } from "../hooks/useFilter";
+import useFilter, { getSelectedOptions } from "../hooks/useFilter";
 import { useHistory } from "react-router-dom";
 import { getEventsByIndexedTerm } from "../api";
 
 const EventCardGroupContainer = ({
   query,
-  committeeFilterValue,
-  start,
-  end,
-  sortBy,
-  sortOrder
+  filterValues
 }) => {
+  const [committeeFilterValue, dateRangeFilterValue, sortFilterValue] = filterValues;
   const [initialGetEventsComplete, setInitialGetEventsComplete] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState(query);
   const [visibleEvents, setVisibleEvents] = React.useState([]);
-  const dateRangeFilter = useFilter({ start: start, end: end }, 'Date', '', getDateText);
+  const dateRangeFilter = useFilter(dateRangeFilterValue, 'Date', '', getDateText);
   const committeeFilter = useFilter(committeeFilterValue, 'Committee', false, getCheckboxText);
-  const sortFilter = useFilter({ by: sortBy, order: sortOrder }, 'Sort', '', getSortText);
+  const sortFilter = useFilter(sortFilterValue, 'Sort', '', getSortText);
   useDocumentTitle(`Search - ${searchQuery}`);
   const history = useHistory();
 
@@ -34,9 +31,9 @@ const EventCardGroupContainer = ({
 
     const fetchEventsByIndexedTerm = async () => {
       const events = await getEventsByIndexedTerm(query,
-        { start: start, end: end },
+        dateRangeFilterValue,
         getSelectedOptions(committeeFilterValue),
-        { by: sortBy, order: sortOrder });
+        sortFilterValue);
       if (!didCancel) {
         setVisibleEvents(events);
         setInitialGetEventsComplete(true);
@@ -48,7 +45,7 @@ const EventCardGroupContainer = ({
     return (() => {
       didCancel = true;
     });
-  }, [query, committeeFilterValue, start, end, sortBy, sortOrder]);
+  }, [query, committeeFilterValue, dateRangeFilterValue, sortFilterValue]);
 
   const onSearchQueryChange = (e, { value }) => {
     setSearchQuery(value);
@@ -59,30 +56,30 @@ const EventCardGroupContainer = ({
   const prevSortRef = React.useRef();
   const prevSearchRef = React.useRef(query);
 
+  // handlePopupClose is a callback for when one of the FilterPopups in EventsFilter closes. 
+  // It will perform filtering, depending on whether any of filter values or the searchQuery have changed.
   const handlePopupClose = () => {
-    if (!isSameValue(prevCommitteeRef.current, committeeFilter.value) ||
-      !isSameValue(prevDateRangeRef.current, dateRangeFilter.value) ||
-      !isSameValue(prevSortRef.current, sortFilter.value) ||
+    if (!committeeFilter.isSameValue(prevCommitteeRef.current) ||
+      !dateRangeFilter.isSameValue(prevDateRangeRef.current) ||
+      !sortFilter.isSameValue(prevSortRef.current) ||
       prevSearchRef.current !== searchQuery) {
       window.scroll(0, 0);
       setInitialGetEventsComplete(false);
       setVisibleEvents([]);
-      const ids = getSelectedOptions(committeeFilter.value).join(',');
-      const start = dateRangeFilter.value.start;
-      const end = dateRangeFilter.value.end;
-      const sortBy = sortFilter.value.by;
-      const sortOrder = sortFilter.value.order;
-      let url = `/search?q=${searchQuery}`;
-      url += ids ? `&ids=${ids}` : '';
-      url += start ? `&from=${start}` : '';
-      url += end ? `&to=${end}` : '';
-      url += sortBy ? `&sortBy=${sortBy}` : '';
-      url += sortOrder ? `&sortOrder=${sortOrder}` : '';
       prevCommitteeRef.current = committeeFilter.value;
       prevDateRangeRef.current = dateRangeFilter.value;
       prevSortRef.current = sortFilter.value;
       prevSearchRef.current = searchQuery;
-      history.replace(url);
+      history.replace({
+        pathname: '/search',
+        search: `?q=${searchQuery.trim().replace(/\s+/g, '+')}`,
+        state: {
+          query: searchQuery,
+          committeeFilterValue: committeeFilter.value,
+          dateRangeFilterValue: dateRangeFilter.value,
+          sortFilterValue: sortFilter.value
+        }
+      });
     }
   }
 
@@ -93,7 +90,7 @@ const EventCardGroupContainer = ({
 
   return (
     <React.Fragment>
-      <FiltersSection visible={true}>
+      <FiltersSection>
         <Form onSubmit={handleSubmit}>
           <Form.Group widths='2'>
             <Form.Input
@@ -116,7 +113,7 @@ const EventCardGroupContainer = ({
         ) : (
             <ResultCount>{visibleEvents.length} results</ResultCount>
           )}
-        <EventCardGroup events={visibleEvents} query={searchQuery}/>
+        <EventCardGroup events={visibleEvents} query={prevSearchRef.current} />
       </Results>
     </React.Fragment>
   );

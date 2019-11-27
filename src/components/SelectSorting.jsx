@@ -2,7 +2,16 @@ import React from 'react';
 import { Form } from 'semantic-ui-react';
 import { ORDER_OPERATORS } from '../api/database';
 
-export const getSortText = (sort, filterName) => {
+/**
+ * Generate the text representation of a sort object.
+ * @param {Object} sort The sort by and sort order options.
+ * @param {string} sort.by
+ * @param {string} sort.order
+ * @param {string} defaultText The default text representation, 
+ * when no sort options are selected.
+ * @return {string} The text representation.
+ */
+export const getSortText = (sort, defaultText) => {
   let by;
   let order;
   if (sort.by) {
@@ -23,7 +32,7 @@ export const getSortText = (sort, filterName) => {
   if (sort.order) {
     order = sort.order === ORDER_OPERATORS.asc ? 'Ascending' : 'Descending';
   }
-  let textRep = filterName;
+  let textRep = defaultText;
   if (by && order) {
     textRep += ` by ${by}: ${order}`;
   } else if (by) {

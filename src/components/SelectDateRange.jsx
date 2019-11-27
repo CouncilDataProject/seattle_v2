@@ -2,7 +2,15 @@ import React from 'react';
 import { Form } from 'semantic-ui-react';
 import moment from 'moment';
 
-export const getDateText = (dateRange, filterName) => {
+/**
+ * Generate the text representation of a date range.
+ * @param {Object} dateRange The start and end dates object.
+ * @param {string} dateRange.start
+ * @param {string} dateRange.end
+ * @param {string} defaultText The default text representation, when no dates have been entered.
+ * @return {string} The text representation.
+ */
+export const getDateText = (dateRange, defaultText) => {
   const start = moment.utc(dateRange.start, 'YYYY-MM-DD');
   const end = moment.utc(dateRange.end, 'YYYY-MM-DD');
   const startString = start.format('MMM D, YYYY');
@@ -21,7 +29,7 @@ export const getDateText = (dateRange, filterName) => {
   } else if (dateRange.end) {
     textRep = `- ${endString}`;
   } else {
-    textRep = filterName;
+    textRep = defaultText;
   }
   return textRep;
 };

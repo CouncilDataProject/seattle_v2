@@ -14,21 +14,25 @@ const ContentContainer = styled(Container)({
 });
 
 const Search = ({ location }) => {
-  const { q, ids, from, to, sortBy, sortOrder } = queryString.parse(location.search);
-  const committeeFilterValue = {};
-  if(ids) {
-    ids.split(',').forEach(id => committeeFilterValue[id] = true);
+  const { q } = queryString.parse(location.search);
+  let query = q.trim().replace(/\+/g, ' ');
+  let committeeFilterValue = {};
+  let dateRangeFilterValue = { start: '', end: '' };
+  let sortFilterValue = { by: '', order: '' };
+  if (location.state) {
+    query = location.state.query || query;
+    committeeFilterValue = location.state.committeeFilterValue || committeeFilterValue;
+    dateRangeFilterValue = location.state.dateRangeFilterValue || dateRangeFilterValue;
+    sortFilterValue = location.state.sortFilterValue || sortFilterValue;
   }
+
   return (
     <Layout>
       <ContentContainer>
         <EventCardGroup
-          query={q}
-          committeeFilterValue={committeeFilterValue}
-          start={from || ''}
-          end={to || ''}
-          sortBy={sortBy || ''}
-          sortOrder={sortOrder || ''} />
+          query={query}
+          filterValues={[committeeFilterValue, dateRangeFilterValue, sortFilterValue]}
+        />
       </ContentContainer>
     </Layout>
   );

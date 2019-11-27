@@ -3,40 +3,51 @@ import { Form } from 'semantic-ui-react';
 import styled from '@emotion/styled';
 import isSubstring from '../utils/isSubstring'
 
-const SearchCommitteeInput = styled(Form.Input)({
-  paddingRight: '.8em'
-});
-
-export const getCheckboxText = (filterValue, filterName) => {
-  const numberOfSelectedCheckbox = Object.values(filterValue).filter(value => value).length;
-  const textRep = numberOfSelectedCheckbox ? `${filterName} : ${numberOfSelectedCheckbox}` : filterName;
+/**
+ * Generate the text representation of a list of checkboxes, by appending the number of selected checkboxes
+ * to the defaultText.
+ * @param {Object} checkboxes The object representation of the list of checkboxes, 
+ * where the keys are the different options, and each value is a boolean(whether the option is selected).
+ * @param {string} defaultText The default text representation, when no checkboxes are selected.
+ * @returns {string} The text representation.
+ */
+export const getCheckboxText = (checkboxes, defaultText) => {
+  const numberOfSelectedCheckbox = Object.values(checkboxes).filter(value => value).length;
+  const textRep = numberOfSelectedCheckbox ? `${defaultText} : ${numberOfSelectedCheckbox}` : defaultText;
   return textRep;
 };
+
+const OptionQueryInput = styled(Form.Input)({
+  paddingRight: '.8em'
+});
 
 const SelectFilterOptions = ({
   filter,
   options,
-  searchCommitteeQuery,
-  setSearchCommitteeQuery,
+  optionQuery,
+  setOptionQuery,
 }) => {
-  const { value, handleChange } = filter;
+  const { filterName, value, handleChange } = filter;
 
   const onChange = (e, { name, checked }) => {
     handleChange(name, checked);
   };
 
-  const onSearchCommiteeChange = (e, { value }) => {
-    setSearchCommitteeQuery(value);
+  const onOptionQueryChange = (e, { value }) => {
+    setOptionQuery(value);
   };
 
-  const filteredOptions = options.filter(({ text }) => isSubstring(text, searchCommitteeQuery));
+  let filteredOptions = options;
+  if (options.length > 5) {
+    filteredOptions = options.filter(({ text }) => isSubstring(text, optionQuery));
+  }
 
   return (
     <Form>
-      <SearchCommitteeInput
-        placeholder='Search Committee Names'
-        value={searchCommitteeQuery}
-        onChange={onSearchCommiteeChange} />
+      {options.length > 5 && <OptionQueryInput
+        placeholder={`Search ${filterName} Options`}
+        value={optionQuery}
+        onChange={onOptionQueryChange} />}
       {filteredOptions.map(option =>
         <Form.Checkbox
           key={option.name}
