@@ -3,6 +3,7 @@ import EventSearch from "./EventSearch";
 import EventTabs from "./EventTabs";
 import ReactPlayer from "react-player";
 import styled from "@emotion/styled";
+import useMatchMedia from '../hooks/useMatchMedia';
 import getDateTime from "../utils/getDateTime";
 
 const StyledEvent = styled.div({
@@ -50,6 +51,7 @@ const DummyDiv = styled.div({
 });
 
 const PlayerContainer = styled.div(props => ({
+  backgroundColor: 'green',
   width: "100%",
   position: !props.isPip ? "sticky" : "relative",
   top: "0",
@@ -84,10 +86,12 @@ const Event = ({
   query
 }) => {
   const fixedSentinelRef = React.useRef(null);
+  const playerContainerRef = React.useRef(null);
   const videoPlayerRef = React.useRef(null);
   const [isPip, setIsPip] = React.useState(false);
   const [isFixed, setIsFixed] = React.useState(false);
-  const [mediaQueriesMatches, setMediaQueriesMatches] = React.useState(window.matchMedia("(min-aspect-ratio:5/4), (min-width:1200px)").matches);
+  //const [mediaQueriesMatches, setMediaQueriesMatches] = React.useState(window.matchMedia("(min-aspect-ratio:5/4), (min-width:1200px)").matches);
+  const mediaQueriesMatches = useMatchMedia("(min-aspect-ratio:5/4), (min-width:1200px)"); //a boolean, whether the video should stick to the top-right
   const [topOffset, setTopOffset] = React.useState(0);
 
   React.useEffect(() => {
@@ -137,20 +141,20 @@ const Event = ({
 
   React.useEffect(() => {
     const onResize = () => {
-      const mediaQueriesList = window.matchMedia("(min-aspect-ratio:5/4), (min-width:1200px)");
-      if(!mediaQueriesList.matches) {
+      //const mediaQueriesList = window.matchMedia("(min-aspect-ratio:5/4), (min-width:1200px)");
+      if(!mediaQueriesMatches) {
         setTopOffset(videoPlayerRef.current.getInternalPlayer().offsetHeight);
       } else {
         setTopOffset(0);
       }
-      setMediaQueriesMatches(mediaQueriesList.matches);
+      //setMediaQueriesMatches(mediaQueriesList.matches);
 
     };
     window.addEventListener("resize", onResize);
     return () => {
       window.removeEventListener("resize", onResize);
     };
-  }, []);
+  }, [mediaQueriesMatches]);
 
   const handleSeek = seconds => {
     videoPlayerRef.current.seekTo(parseFloat(seconds));
@@ -162,6 +166,7 @@ const Event = ({
   };
 
   const onVideoReady = () => {
+    //console.log('v oh', videoPlayerRef.current.getInternalPlayer().offsetHeight)
     if(!mediaQueriesMatches) {
       setTopOffset(videoPlayerRef.current.getInternalPlayer().offsetHeight);
     }
@@ -179,7 +184,7 @@ const Event = ({
           <DummyDiv />
         </PlayerWrapper>
       </DummyContainer>
-      <PlayerContainer isPip={isPip} isFixed={isFixed}>
+      <PlayerContainer isPip={isPip} isFixed={isFixed} ref={playerContainerRef}>
         <PlayerWrapper>
           <StyledReactPlayer
             ref={videoPlayerRef}
