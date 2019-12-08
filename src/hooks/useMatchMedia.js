@@ -11,14 +11,13 @@ function useMatchMedia(mediaQuery) {
     const mediaQueryList = matchMedia(mediaQuery);
 
     const onChange = (event) => {
-      //console.log('mq changes', mediaQuery, event.matches)
       setMatches(event.matches);
     };
 
-    mediaQueryList.addEventListener('change', onChange);
+    mediaQueryList.addListener(onChange);
 
     return(() =>{
-      mediaQueryList.removeEventListener('change', onChange);
+      mediaQueryList.removeListener(onChange);
     })
   }, [mediaQuery]);
 
