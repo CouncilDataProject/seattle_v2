@@ -80,7 +80,6 @@ const Event = ({
   votes,
   query
 }) => {
-  //const fixedSentinelRef = React.useRef(null);
   const videoPlayerRef = React.useRef(null);
   //isFixed is a boolean, whether the video is fixed to the top-right
   const [isFixed, setIsFixed] = React.useState(false);
@@ -166,7 +165,6 @@ const Event = ({
           <ControlBar autoHide={true}>
             <VolumeMenuButton vertical />
             <PlaybackRateMenuButton rates={[2, 1.5, 1, 0.75]} order={6.1} />
-            <FullscreenToggle disabled />
           </ControlBar>
         </Player>
       </PlayerContainer>
