@@ -59,10 +59,13 @@ const toSeconds = (timePointStr) => {
         // num is not a number, or is negative
         totalSeconds += NaN;
       } else {
-        totalSeconds += Math.floor(parseFloat(num)) * Math.pow(60, i);
+        totalSeconds += parseFloat(num) * Math.pow(60, i);
       }
     }
   });
+  if (totalSeconds) {
+    totalSeconds = Math.floor(totalSeconds);
+  }
   return totalSeconds;
 };
 

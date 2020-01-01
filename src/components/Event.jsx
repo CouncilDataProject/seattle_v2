@@ -1,8 +1,15 @@
 import React from "react";
 import EventSearch from "./EventSearch";
+import EventShareVideo from "./EventShareVideo";
 import EventTabs from "./EventTabs";
-import { Visibility } from "semantic-ui-react";
-import { Player, BigPlayButton, ControlBar, PlaybackRateMenuButton, VolumeMenuButton, FullscreenToggle } from "video-react";
+import { Segment, Visibility } from "semantic-ui-react";
+import {
+  Player,
+  BigPlayButton,
+  ControlBar,
+  PlaybackRateMenuButton,
+  VolumeMenuButton
+} from "video-react";
 import useMatchMedia from "../hooks/useMatchMedia";
 import styled from "@emotion/styled";
 import getDateTime from "../utils/getDateTime";
@@ -19,10 +26,19 @@ const Header = styled.div({
   margin: "1em 0"
 });
 
-const EventDate = styled.h5({
+const EventDate = styled.span({
   margin: "0.1em 0",
   color: "grey",
   fontWeight: "400"
+});
+
+const InfoSegment = styled(Segment.Inline)({
+  display: "flex",
+  justifyContent: "space-between",
+  width: "100%",
+  "@media (min-aspect-ratio:5/4), (min-width:1200px)": {
+    width: "59%"
+  }
 });
 
 const FixedSentinel = styled.div({
@@ -78,7 +94,8 @@ const Event = ({
   videoUrl,
   transcript,
   votes,
-  query
+  query,
+  videoTimePoint
 }) => {
   const videoPlayerRef = React.useRef(null);
   //isFixed is a boolean, whether the video is fixed to the top-right
@@ -93,17 +110,7 @@ const Event = ({
     const video = videoPlayerRef.current.video.video;
     //disable pip button for chrome, can't disable for firefox.
     video.disablePictureInPicture = true;
-
-    //callback for when video is ready to play
-    const onCanPlay = () => {
-      setVideoOffsetHeight(video.offsetHeight);
-    };
-
-    video.addEventListener('canplay', onCanPlay);
-
-    return (() => {
-      video.removeEventListener('canplay', onCanPlay);
-    });
+    setVideoOffsetHeight(video.offsetHeight);
   }, []);
 
   React.useEffect(() => {
@@ -120,7 +127,8 @@ const Event = ({
   const handleSeek = seconds => {
     videoPlayerRef.current.seek(parseFloat(seconds));
     const { player } = videoPlayerRef.current.getState();
-    if (player.paused && player.currentTime > 0) {
+    // if video is paused or has not started, then play video
+    if (player.paused || !player.hasStarted) {
       videoPlayerRef.current.play();
     }
   };
@@ -145,8 +153,13 @@ const Event = ({
     <StyledEvent>
       <Header>
         <h1>{title}</h1>
-        <EventDate>Meeting Date: {getDateTime(date)}</EventDate>
       </Header>
+      <InfoSegment>
+        <EventDate>{getDateTime(date)}</EventDate>
+        <Segment.Inline>
+          <EventShareVideo videoPlayerRef={videoPlayerRef} />
+        </Segment.Inline>
+      </InfoSegment>
       <Visibility
         once={false}
         onBottomPassed={onBottomPassed}
@@ -160,7 +173,13 @@ const Event = ({
         </PlayerWrapper>
       </DummyContainer>
       <PlayerContainer isFixed={isFixed}>
-        <Player fluid aspectRatio='16:9' ref={videoPlayerRef} src={videoUrl}>
+        <Player
+          fluid
+          aspectRatio='16:9'
+          preload={videoTimePoint ? 'auto' : 'metadata'}
+          ref={videoPlayerRef}
+          src={videoUrl}
+          startTime={videoTimePoint}>
           <BigPlayButton position='center' />
           <ControlBar autoHide={true}>
             <VolumeMenuButton vertical />
