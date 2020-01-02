@@ -1,7 +1,7 @@
 import React from "react";
 import { Input } from "semantic-ui-react";
 import styled from "@emotion/styled";
-import EventTranscript from "./EventTranscript";
+import EventTranscriptSearch from "./EventTranscriptSearch";
 import isSubstring from "../utils/isSubstring";
 
 const StyledEventSearch = styled.div({
@@ -83,11 +83,10 @@ const EventSearch = ({
       )}
       {transcriptSearchText !== "" && transcriptItems.length > 0 && (
         <SearchResultsWrapper>
-          <EventTranscript
+          <EventTranscriptSearch
             searchText={transcriptSearchText}
             transcript={transcriptItems}
             handleSeek={handleSeek}
-            isSearch={true}
           />
         </SearchResultsWrapper>
       )}
