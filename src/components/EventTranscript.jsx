@@ -1,49 +1,43 @@
 import React from "react";
-import { Button } from "semantic-ui-react";
-import { AutoSizer, CellMeasurer, CellMeasurerCache, List, WindowScroller } from 'react-virtualized';
-import { Icon } from "semantic-ui-react";
-import Highlighter from "react-highlight-words";
+import { Button, Icon } from "semantic-ui-react";
+import { AutoSizer, CellMeasurer, CellMeasurerCache, List, WindowScroller } from "react-virtualized";
 import styled from "@emotion/styled";
 import hhmmss from "../utils/hhmmss";
 
 const TranscriptItem = styled.div({
   display: "flex",
   flexWrap: "wrap",
+  justifyContent: "space-between",
   alignItems: "center",
-  margin: "1em 0",
-  padding: "0.2em"
+  margin: "1em 0.2em"
 });
 
-const TranscriptItemText = styled.div(props => ({
-  width: props.isSearch ? "100%" : "85%",
-  order: props.isSearch ? "0" : "1",
-  boxSizing: "border-box",
+const TranscriptItemText = styled.div({
+  width: "100%",
   fontSize: "16px",
-  lineHeight: "1.5em",
-  "@media(max-width:1000px)": {
-    width: "100%",
+  marginBottom: "0.1em",
+  "@media(min-width:720px)": {
+    width: "85%",
+    order: "1",
+    marginBottom: "0"
+  }
+});
+
+const TimeStamp = styled.div({
+  width: "100%",
+  ".ui.button": {
+    // Make timestamp button's padding smaller
+    padding: "0.5em !important"
+  },
+  "@media(min-width:720px)": {
+    width: "15%",
     order: "0"
   }
-}));
-
-const TimeStamp = styled.div(props => ({
-  width: props.isSearch ? "100%" : "15%",
-  order: props.isSearch ? "1" : "0",
-  boxSizing: "border-box",
-  padding: props.isSearch ? "0" : "0.5em",
-  "@media(max-width:1000px)": {
-    width: "100%",
-    padding: "0",
-    order: "1",
-    margin: "10px 0px 0px 0px"
-  }
-}));
+});
 
 const EventTranscript = ({
-  searchText,
   transcript,
-  handleSeek,
-  isSearch
+  handleSeek
 }) => {
   const windowScrollerRef = React.useRef(null);
 
@@ -78,65 +72,42 @@ const EventTranscript = ({
     >
       <div style={style}>
         <TranscriptItem>
-          <TimeStamp isSearch={isSearch}>
-            <Button size="tiny" onClick={() => handleSeek(transcript[index].start_time)}>
+          <TranscriptItemText>
+            {transcript[index].text}
+          </TranscriptItemText>
+          <TimeStamp>
+            <Button size="small" onClick={() => handleSeek(transcript[index].start_time)}>
               <Icon name="play" />
               {hhmmss(transcript[index].start_time)}
             </Button>
           </TimeStamp>
-          <TranscriptItemText isSearch={isSearch}>
-            <Highlighter
-              searchWords={[searchText]}
-              autoEscape={true}
-              textToHighlight={transcript[index].text}
-            />
-          </TranscriptItemText>
         </TranscriptItem>
       </div>
     </CellMeasurer>
   );
 
-  if (isSearch) {
-    return (
-      <AutoSizer onResize={onResize}>
-        {({ width, height }) => (
-          <List
-            deferredMeasurementCache={cache}
-            height={height}
-            rowCount={transcript.length}
-            rowHeight={cache.rowHeight}
-            rowRenderer={Row}
-            scrollToIndex={0}
-            style={{ willChange: "" }}
-            width={width}
-          />
-        )}
-      </AutoSizer>
-    );
-  } else {
-    return (
-      <WindowScroller ref={windowScrollerRef}>
-        {({ height, isScrolling, onChildScroll, scrollTop }) => (
-          <AutoSizer disableHeight onResize={onResize}>
-            {({ width }) => (
-              <List
-                autoHeight
-                deferredMeasurementCache={cache}
-                height={height}
-                isScrolling={isScrolling}
-                onScroll={onChildScroll}
-                rowCount={transcript.length}
-                rowHeight={cache.rowHeight}
-                rowRenderer={Row}
-                scrollTop={scrollTop}
-                style={{ willChange: "" }}
-                width={width}
-              />)}
-          </AutoSizer>
-        )}
-      </WindowScroller>
-    );
-  }
+  return (
+    <WindowScroller ref={windowScrollerRef}>
+      {({ height, isScrolling, onChildScroll, scrollTop }) => (
+        <AutoSizer disableHeight onResize={onResize}>
+          {({ width }) => (
+            <List
+              autoHeight
+              deferredMeasurementCache={cache}
+              height={height}
+              isScrolling={isScrolling}
+              onScroll={onChildScroll}
+              rowCount={transcript.length}
+              rowHeight={cache.rowHeight}
+              rowRenderer={Row}
+              scrollTop={scrollTop}
+              style={{ willChange: "" }}
+              width={width}
+            />)}
+        </AutoSizer>
+      )}
+    </WindowScroller>
+  );
 };
 
 export default React.memo(EventTranscript);
