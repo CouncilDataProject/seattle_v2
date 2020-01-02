@@ -15,7 +15,7 @@ const ContentContainer = styled(Container)({
 
 const Search = ({ location }) => {
   const { q } = queryString.parse(location.search);
-  let query = q.trim().replace(/\+/g, ' ');
+  let query = q ? q.trim().replace(/\+/g, ' ') : '';
   let committeeFilterValue = {};
   let dateRangeFilterValue = { start: '', end: '' };
   let sortFilterValue = { by: '', order: '' };

@@ -12,15 +12,34 @@ const StyledCardContent = styled(Card.Content)({
   padding: "0 !important"
 });
 
-const EventCard = ({ name, date, description, link, query }) => (
-  <StyledCard fluid>
-    <StyledCardContent>
-      <Card.Header><Link to={query ?  `${link}/${query.trim().replace(/\s+/g, '+')}` : link}>{name}</Link>
-      </Card.Header>
-      <Card.Meta>{getDateTime(date)}</Card.Meta>
-      <Card.Description>{description}</Card.Description>
-    </StyledCardContent>
-  </StyledCard>
-);
+const EventCard = ({ name, date, description, link, query }) => {
+  const getLinkParameters = () => {
+    // Shorten whitespaces to one whitespace
+    const prettyQuery = query ? query.trim().replace(/\s+/g, ' ') : ''
+    const linkParameters = {
+      // For search parameter, replace whitespaces with `+`
+      pathname: link,
+      search: prettyQuery ? `?q=${prettyQuery.replace(/\s+/g, '+')}` : '',
+      state: {
+        query: prettyQuery
+      }
+    }
+    return linkParameters;
+  }
+
+  return (
+    <StyledCard fluid>
+      <StyledCardContent>
+        <Card.Header>
+          <Link to={getLinkParameters()}>
+            {name}
+          </Link>
+        </Card.Header>
+        <Card.Meta>{getDateTime(date)}</Card.Meta>
+        <Card.Description>{description}</Card.Description>
+      </StyledCardContent>
+    </StyledCard >
+  )
+};
 
 export default EventCard;

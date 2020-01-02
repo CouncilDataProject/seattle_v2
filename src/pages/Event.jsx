@@ -2,6 +2,7 @@ import React from "react";
 import Event from "../containers/Event";
 import { Container } from "semantic-ui-react";
 import styled from "@emotion/styled";
+import queryString from "query-string";
 
 const Layout = styled(Container)({
   minHeight: "100vh"
@@ -13,27 +14,36 @@ const ContentContainer = styled(Container)({
 });
 
 const EventPage = ({ match, location }) => {
+  // The query parameters in the URL
+  const { q, t } = queryString.parse(location.search);
 
   const parseQuery = () => {
-    // This function parses the URL since we couldn't pass the query through state at this time
-    // This solution has the potential to break if the URL changes shape in the future
-    // A state management solution would be desirable
-    const urlString = location.pathname;
-    const pieces = urlString.split('/');
-    let query;
-    if (pieces.length === 4) {
-      query = pieces[pieces.length - 1];
-      query = query.trim().replace(/\+/g, ' ');
-    } else {
-      query = '';
+    // Get the search transcript query
+    let query = q ? q.trim().replace(/\+/g, ' ') : '';
+    if (location.state) {
+      query = location.state.query || query;
     }
     return query;
+  }
+
+  const parseVideoTimePoint = () => {
+    // Get the video's starting time point
+    let videoTimePoint;
+    if (!t || isNaN(t)) {
+      videoTimePoint = 0;
+    } else {
+      videoTimePoint = Math.max(0, parseFloat(t));
+    }
+    return videoTimePoint;
   }
 
   return (
     <Layout>
       <ContentContainer>
-        <Event id={match.params.id} query={parseQuery()} />
+        <Event
+          id={match.params.id}
+          query={parseQuery()}
+          videoTimePoint={parseVideoTimePoint()} />
       </ContentContainer>
     </Layout>
   );
