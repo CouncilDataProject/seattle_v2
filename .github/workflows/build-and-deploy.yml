@@ -5,7 +5,10 @@ on:
     branches:
       - master
   schedule:
-    - cron: 0 10 * * 1
+    # <minute [0,59]> <hour [0,23]> <day of the month [1,31]> <month of the year [1,12]> <day of the week [0,6]>
+    # https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html#tag_20_25_07
+    # Run every Monday at 18:00:00 UTC (Monday at 10:00:00 PST)
+    - cron: '0 18 * * 1'
 
 jobs:
   test:
@@ -13,8 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - uses: actions/setup-node@v1
-      name: Setup Node
+    - name: Setup Node
+      uses: actions/setup-node@v1
       with:
         node-version: '10.x'
     - name: Install Dependencies
@@ -29,8 +32,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - uses: actions/setup-node@v1
-      name: Setup Node
+    - name: Setup Node
+      uses: actions/setup-node@v1
       with:
         node-version: '10.x'
     - name: Install Dependencies
@@ -45,11 +48,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - uses: JamesIves/github-pages-deploy-action@master
-      name: Run Deploy
-      env:
+    - name: Setup Node
+      uses: actions/setup-node@v1
+      with:
+        node-version: '10.x'
+    - name: Install Dependencies
+      run: |
+        npm i
+    - name: Build
+      run: |
+        npm run predeploy
+    - name: Publish
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
         ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         BASE_BRANCH: master # The branch the action should deploy from.
         BRANCH: gh-pages # The branch the action should deploy to.
         FOLDER: build # The folder the action should deploy.
-        BUILD_SCRIPT: npm i && npm run-script predeploy # The build script the action should run prior to deploying.
