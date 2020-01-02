@@ -37,14 +37,14 @@ const ShareButton = styled(ButtonWithRef)({
   }
 });
 
-// In anticipation of other buttons to be added next to share button, 
+// In anticipation of other buttons to be added next to share button,
 // make this inline-block so that they all appear on the same horizontal line.
 const ModalMountNode = styled.div({
   display: 'inline-block'
 });
 
 /**
- * 
+ *
  * @param {string} timePointStr The str representation of a time point. e.g. 1:23:15
  * @return {(int|NaN)} The time point in total seconds. Or NaN, if the str contains
  * any non-digits.
@@ -70,7 +70,7 @@ const toSeconds = (timePointStr) => {
 };
 
 /**
- * 
+ *
  * @param {(int|NaN)} totalSeconds The total number of seconds of a time point.
  * @return {string} The time point str. e.g. 1:23:15, or `INVALID TIME POINT` if totalSeconds is not a number.
  */
@@ -110,7 +110,7 @@ const initialTimePoint = {
 };
 
 /**
- * 
+ *
  * @param {Object} timePoint The time point state.
  * @param {string} timePoint.value
  * @param {boolean} timePoint.isDisabled
@@ -195,7 +195,7 @@ const EventShareVideo = ({
   // Get the share link url
   const getVideoShareLink = () => {
     let totalSeconds = toSeconds(timePoint.value);
-    let videoShareLink = `${document.location.origin}/#${location.pathname}`;
+    let videoShareLink = `${document.location.href.split('#')[0]}#${location.pathname}`;
     return (timePoint.isActive && totalSeconds) ?
       `${videoShareLink}?t=${totalSeconds}` :
       `${videoShareLink}`;
