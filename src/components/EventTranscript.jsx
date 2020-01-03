@@ -20,7 +20,7 @@ const TranscriptItemText = styled.div(props => ({
   boxSizing: "border-box",
   fontSize: "16px",
   lineHeight: "1.5em",
-  "@media(max-width:720px)": {
+  "@media(max-width:1000px)": {
     width: "100%",
     order: "0"
   }
@@ -31,7 +31,7 @@ const TimeStamp = styled.div(props => ({
   order: props.isSearch ? "1" : "0",
   boxSizing: "border-box",
   padding: props.isSearch ? "0" : "0.5em",
-  "@media(max-width:720px)": {
+  "@media(max-width:1000px)": {
     width: "100%",
     padding: "0",
     order: "1"
