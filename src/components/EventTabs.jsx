@@ -66,10 +66,8 @@ const EventTabs = ({
       {{
         details: <EventMinutes minutes={minutes} scPageUrl={scPageUrl} />,
         transcript: <EventTranscript
-          searchText={""}
           transcript={transcript}
           handleSeek={handleSeek}
-          isSearch={false}
         />,
         votes: votes.length ? <VotingTable votingData={votes} /> : <div>No votes found for this event.</div>
       }[activeItem]}
