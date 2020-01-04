@@ -36,7 +36,7 @@ const InfoSegment = styled(Segment.Inline)({
   display: "flex",
   justifyContent: "space-between",
   width: "100%",
-  "@media (min-width:1200px)": {
+  "@media (min-aspect-ratio:5/4), (min-width:1200px)": {
     width: "59%"
   }
 });
@@ -53,7 +53,7 @@ const FixedSentinel = styled.div({
 const DummyContainer = styled.div(props => ({
   position: "relative",
   display: "none",
-  "@media (min-width:1200px)": {
+  "@media (min-aspect-ratio:5/4), (min-width:1200px)": {
     display: props.isFixed ? "block" : "none",
     width: "59%"
   }
@@ -73,7 +73,7 @@ const PlayerContainer = styled.div(props => ({
   position: "sticky",
   top: "0",
   zIndex: "2",
-  "@media (min-width:1200px)": {
+  "@media (min-aspect-ratio:5/4), (min-width:1200px)": {
     position: props.isFixed ? "fixed" : "relative",
     width: props.isFixed ? "20vw" : "59%",
     right: "0"
@@ -101,7 +101,7 @@ const Event = ({
   //isFixed is a boolean, whether the video is fixed to the top-right
   const [isFixed, setIsFixed] = React.useState(false);
   //mediaQueriesMatches is a boolean, whether the video can be fixed to the top-right
-  const mediaQueriesMatches = useMatchMedia("(min-width:1200px)");
+  const mediaQueriesMatches = useMatchMedia("(min-aspect-ratio:5/4), (min-width:1200px)");
   //videoOffSetHeight is used to determine vertical position of event tabs menu when it is sticky
   const [videoOffSetHeight, setVideoOffsetHeight] = React.useState(0);
 

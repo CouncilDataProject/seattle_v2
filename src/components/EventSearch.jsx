@@ -10,7 +10,7 @@ const StyledEventSearch = styled.div({
   display: "flex",
   flexDirection: "column",
   boxSizing: "border-box",
-  "@media (min-width:1200px)": {
+  "@media (min-aspect-ratio:5/4), (min-width:1200px)": {
     width: "38%",
     margin: "0 0 0 20px"
   }
@@ -45,7 +45,7 @@ const SearchResultsWrapper = styled.div({
   borderRadius: "0.28rem",
   boxSizing: "border-box",
   minHeight: "calc(.5625 * 90vw)",
-  "@media (min-width:1200px)": {
+  "@media (min-aspect-ratio:5/4), (min-width:1200px)": {
     flex: "1 1 auto",
     minHeight: "0"
   }
