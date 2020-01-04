@@ -31,22 +31,31 @@ const EventTabs = ({
   votes,
   handleSeek,
   topOffset,
-  mediaQueriesMatches
+  mediaQueriesMatches,
+  videoTimePoint
 }) => {
-  const [activeItem, setActiveItem] = React.useState("details");
+  // Which menu item is visible
+  const [activeItem, setActiveItem] = React.useState(videoTimePoint ? "transcript": "details");
+  // A React reference to StyledEventTabs
   const contextRef = React.useRef(null);
+  // A React reference to hold a boolean, whether has already scrolled to transcript portion that contains videoTimePoint
+  // Needed so that it automatically scroll to that transcript portion only once.
+  const transcriptHasScrolledToVideoTimePoint = React.useRef(false);
 
-  React.useEffect(() => {
+  // Callback to handle menu item click event
+  const handleItemClick = (e, { name }) => {
     const domRect = contextRef.current.getBoundingClientRect();
     if (domRect.top < 0) {
+      // If the top of contextRef is not visible, scroll so that the top of contextRef
+      // is aligned with the top of viewport.
       contextRef.current.scrollIntoView(true);
       if (!mediaQueriesMatches) {
+        // This is the case where video is fixed to the top and Menu is below the video.
+        // Need to scroll upward by video's height so that the, for example, first minute is visible
+        // below the menu.
         window.scrollBy(0, -topOffset);
       }
     }
-  }, [activeItem, mediaQueriesMatches, topOffset]);
-
-  const handleItemClick = (e, { name }) => {
     setActiveItem(name);
   };
 
@@ -66,8 +75,10 @@ const EventTabs = ({
       {{
         details: <EventMinutes minutes={minutes} scPageUrl={scPageUrl} />,
         transcript: <EventTranscript
-          transcript={transcript}
+          transcriptHasScrolledToVideoTimePoint={transcriptHasScrolledToVideoTimePoint}
           handleSeek={handleSeek}
+          transcript={transcript}
+          videoTimePoint={videoTimePoint}
         />,
         votes: votes.length ? <VotingTable votingData={votes} /> : <div>No votes found for this event.</div>
       }[activeItem]}

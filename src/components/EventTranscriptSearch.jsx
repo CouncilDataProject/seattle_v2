@@ -12,14 +12,14 @@ const TranscriptItem = styled.div({
 
 const TranscriptItemText = styled.div({
   fontSize: "16px",
-  // Increase spacing between TranscriptItemText and TimeStamp button
-  marginBottom: "0.1em"
 });
 
 const TimeStamp = styled.div({
+  // Increase vertical spacing between TranscriptItemText and TimeStamp
+  marginTop: "10px",
   ".ui.button": {
     // Make timestamp button's padding smaller
-    padding: "0.5em !important"
+    padding: "0.8em !important"
   }
 });
 
@@ -65,7 +65,7 @@ const EventTranscriptSearch = ({
             />
           </TranscriptItemText>
           <TimeStamp>
-            <Button size="small" onClick={() => handleSeek(transcript[index].start_time)}>
+            <Button size="tiny" onClick={() => handleSeek(transcript[index].start_time)}>
               <Icon name="play" />
               {hhmmss(transcript[index].start_time)}
             </Button>
