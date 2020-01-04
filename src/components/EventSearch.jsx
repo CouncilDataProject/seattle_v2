@@ -11,8 +11,8 @@ const StyledEventSearch = styled.div({
   flexDirection: "column",
   boxSizing: "border-box",
   "@media (min-aspect-ratio:5/4), (min-width:1200px)": {
-    width: "40%",
-    margin: "0"
+    width: "38%",
+    margin: "0 0 0 20px"
   }
 });
 
