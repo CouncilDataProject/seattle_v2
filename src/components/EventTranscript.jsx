@@ -34,7 +34,8 @@ const TimeStamp = styled.div(props => ({
   "@media(max-width:1000px)": {
     width: "100%",
     padding: "0",
-    order: "1"
+    order: "1",
+    margin: "10px 0px 0px 0px"
   }
 }));
 
