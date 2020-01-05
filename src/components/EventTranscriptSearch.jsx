@@ -12,6 +12,7 @@ const TranscriptItem = styled.div({
 
 const TranscriptItemText = styled.div({
   fontSize: "16px",
+  lineHeight: "1.5em"
 });
 
 const TimeStamp = styled.div({

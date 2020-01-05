@@ -17,6 +17,7 @@ const TranscriptItem = styled.div(props => ({
 const TranscriptItemText = styled.div({
   width: "100%",
   fontSize: "16px",
+  lineHeight: "1.5em",
   "@media(min-width:1000px)": {
     // For screen width >= 1000px
     // Decrease text's width
