@@ -54,16 +54,12 @@ const SearchResultsWrapper = styled.div({
 const EventSearch = ({
   transcript,
   handleSeek,
-  mediaQueriesMatches,
   query
 }) => {
   const [transcriptSearchText, setTranscriptSearchText] = React.useState(query);
 
   const handleTranscriptSearch = (e, { value }) => {
     setTranscriptSearchText(value);
-    if(!mediaQueriesMatches) {
-      document.dispatchEvent(new CustomEvent("update-scroll-position"));
-    }
   };
 
   const transcriptItems = transcript.filter(({ text }) => isSubstring(text, transcriptSearchText));

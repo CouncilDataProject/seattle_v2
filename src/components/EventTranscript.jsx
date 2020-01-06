@@ -47,7 +47,7 @@ const TimeStamp = styled.div({
  * @param {Number} transcriptItem.start_time
  * @param {Number} transcriptItem.end_time
  * @param {String} [transcriptItem.speaker]
- * @param {Object} transcriptItemRef A React reference
+ * @param {Object} transcriptItemRef A React reference to the transcript item in the DOM
  * @param {Boolean} isSpeakerTurnFormat Whether transcriptItem is from timestamped-speaker-turns format.
  * @param {Function} handleSeek Callback to change the event video's current time to the start_time.
  * @return The JSX of the transcript item.
@@ -119,7 +119,6 @@ const findTranscriptItemIndex = (videoTimePoint, transcriptItems) => {
 const EventTranscript = ({
   transcriptHasScrolledToVideoTimePointRef,
   handleSeek,
-  mediaQueriesMatches,
   transcript,
   videoTimePoint
 }) => {
@@ -144,19 +143,13 @@ const EventTranscript = ({
     let transcriptItemIndex = findTranscriptItemIndex(videoTimePoint, transcriptItems);
     if (transcriptItemIndex >= 0 && !transcriptHasScrolledToVideoTimePointRef.current) {
       const transcriptItemRef = transcriptItemRefs[transcriptItemIndex];
-      const transcriptItemDomRect = transcriptItemRef.current.getBoundingClientRect();
       transcriptItemRef.current.scrollIntoView(true);
       // transcript item may be covered by menu and/or video
-      if (mediaQueriesMatches) {
-        // scroll upward by max of 100 or transcript item's height
-        window.scrollBy(0, -Math.max(100, transcriptItemDomRect.height));
-      } else {
-        // scroll upward by half of window's height
-        window.scrollBy(0, -window.innerHeight/2);
-      }
+      // scroll upward by half of window's height
+      window.scrollBy(0, -window.innerHeight / 2);
       transcriptHasScrolledToVideoTimePointRef.current = true;
     }
-  }, [mediaQueriesMatches, transcriptHasScrolledToVideoTimePointRef, transcriptItems, transcriptItemRefs, videoTimePoint]);
+  }, [transcriptHasScrolledToVideoTimePointRef, transcriptItems, transcriptItemRefs, videoTimePoint]);
 
   return (
     <div>

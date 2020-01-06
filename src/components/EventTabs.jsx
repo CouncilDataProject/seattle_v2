@@ -92,7 +92,6 @@ const EventTabs = ({
         transcript: <EventTranscript
           transcriptHasScrolledToVideoTimePointRef={transcriptHasScrolledToVideoTimePointRef}
           handleSeek={handleSeek}
-          mediaQueriesMatches={mediaQueriesMatches}
           transcript={transcript}
           videoTimePoint={videoTimePointState}
         />,

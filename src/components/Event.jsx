@@ -203,7 +203,6 @@ const Event = ({
       <EventSearch
         transcript={getTranscriptTimestampedText()}
         handleSeek={handleSeek}
-        mediaQueriesMatches={mediaQueriesMatches}
         query={query}
       />
       <EventTabs
