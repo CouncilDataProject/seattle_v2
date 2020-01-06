@@ -1,6 +1,5 @@
 import React from "react";
 import { Button, Divider, Header, Icon } from "semantic-ui-react";
-import { AutoSizer, CellMeasurer, CellMeasurerCache, List, WindowScroller } from "react-virtualized";
 import styled from "@emotion/styled";
 import hhmmss from "../utils/hhmmss";
 
@@ -11,7 +10,7 @@ const TranscriptItem = styled.div(props => ({
   alignItems: "center",
   // Make vertical spacing between transcript items of timestamped-speaker-turns format a little
   // bit smaller than other transcript formats.
-  margin: props.isSpeakerTurnFormat ? "0.8em 0.2em" : "1.2em 0.2em"
+  margin: props.isSpeakerTurnFormat ? "2.5em 0.2em" : "3em 0.2em"
 }));
 
 const TranscriptItemText = styled.div({
@@ -48,13 +47,14 @@ const TimeStamp = styled.div({
  * @param {Number} transcriptItem.start_time
  * @param {Number} transcriptItem.end_time
  * @param {String} [transcriptItem.speaker]
+ * @param {Object} transcriptItemRef A React reference
  * @param {Boolean} isSpeakerTurnFormat Whether transcriptItem is from timestamped-speaker-turns format.
  * @param {Function} handleSeek Callback to change the event video's current time to the start_time.
  * @return The JSX of the transcript item.
  */
-const transcriptItemRenderer = (transcriptItem, isSpeakerTurnFormat, handleSeek) => {
+const transcriptItemRenderer = (transcriptItem, transcriptItemRef, isSpeakerTurnFormat, handleSeek) => {
   return (
-    <div>
+    <div key={transcriptItem.start_time} ref={transcriptItemRef}>
       {(!!transcriptItem.speaker) &&
         <Divider horizontal>
           <Header as='h3'>
@@ -117,15 +117,12 @@ const findTranscriptItemIndex = (videoTimePoint, transcriptItems) => {
 };
 
 const EventTranscript = ({
-  transcriptHasScrolledToVideoTimePoint,
+  transcriptHasScrolledToVideoTimePointRef,
   handleSeek,
+  mediaQueriesMatches,
   transcript,
   videoTimePoint
 }) => {
-  // A React reference to react-virtualized WindowScroller
-  const windowScrollerRef = React.useRef(null);
-  // A React reference to react-virtualized List
-  const listRef = React.useRef(null);
   // List of timestamped texts
   let transcriptItems = [];
   const isSpeakerTurnFormat = transcript.format.includes("speaker-turns");
@@ -139,81 +136,41 @@ const EventTranscript = ({
     transcriptItems = transcript.data;
   }
 
+  // List of transcript item React references.
+  const transcriptItemRefs = transcriptItems.map(() => React.createRef());
+
+
   React.useEffect(() => {
     let transcriptItemIndex = findTranscriptItemIndex(videoTimePoint, transcriptItems);
-    if (transcriptItemIndex > 0 && !transcriptHasScrolledToVideoTimePoint.current) {
-      // Scroll to transcript item
-      listRef.current.scrollToRow(transcriptItemIndex);
-      transcriptHasScrolledToVideoTimePoint.current = true;
-    }
-  }, [transcriptHasScrolledToVideoTimePoint, transcriptItems, videoTimePoint]);
-
-  React.useEffect(() => {
-    const handleUpdateScrollPosition = () => {
-      if (windowScrollerRef.current) {
-        // Need to recalculate windowScroller's scroll position from the top of page on seeing a `update-scroll-position` event.
-        windowScrollerRef.current.updatePosition();
+    if (transcriptItemIndex >= 0 && !transcriptHasScrolledToVideoTimePointRef.current) {
+      const transcriptItemRef = transcriptItemRefs[transcriptItemIndex];
+      const transcriptItemDomRect = transcriptItemRef.current.getBoundingClientRect();
+      transcriptItemRef.current.scrollIntoView(true);
+      // transcript item may be covered by menu and/or video
+      if (mediaQueriesMatches) {
+        // scroll upward by max of 100 or transcript item's height
+        window.scrollBy(0, -Math.max(100, transcriptItemDomRect.height));
+      } else {
+        // scroll upward by half of window's height
+        window.scrollBy(0, -window.innerHeight/2);
       }
-    };
-    document.addEventListener("update-scroll-position", handleUpdateScrollPosition);
-    return () => {
-      document.removeEventListener("update-scroll-position", handleUpdateScrollPosition);
-    };
-  }, []);
-
-  // Stores the CellMeasurer's measurements of all transcript items
-  const cache = new CellMeasurerCache({
-    // The width of transcript items are the same
-    fixedWidth: true,
-    // The height of transcript items are variable, with the default height being 100px
-    defaultHeight: 100,
-  });
-
-  const onResize = () => {
-    // Need to clear all transcript items' measurements on document resize
-    cache.clearAll();
-  };
-
-  const Row = ({ index, parent, key, style }) => (
-    // Row is responsible for rendering a transcript item
-    // CellMeasurer will dynamically determine the height of a transcript item,
-    // or use the cache to determine the height
-    <CellMeasurer
-      key={key}
-      cache={cache}
-      parent={parent}
-      columnIndex={0}
-      rowIndex={index}
-    >
-      <div style={style}>
-        {transcriptItemRenderer(transcriptItems[index], transcript.format.includes("speaker-turns"), handleSeek)}
-      </div>
-    </CellMeasurer>
-  );
+      transcriptHasScrolledToVideoTimePointRef.current = true;
+    }
+  }, [mediaQueriesMatches, transcriptHasScrolledToVideoTimePointRef, transcriptItems, transcriptItemRefs, videoTimePoint]);
 
   return (
-    <WindowScroller ref={windowScrollerRef}>
-      {({ height, isScrolling, onChildScroll, scrollTop }) => (
-        <AutoSizer disableHeight onResize={onResize}>
-          {({ width }) => (
-            <List
-              autoHeight
-              deferredMeasurementCache={cache}
-              height={height}
-              isScrolling={isScrolling}
-              onScroll={onChildScroll}
-              ref={listRef}
-              rowCount={transcriptItems.length}
-              rowHeight={cache.rowHeight}
-              rowRenderer={Row}
-              scrollToAlignment={"center"}
-              scrollTop={scrollTop}
-              style={{ willChange: "" }}
-              width={width}
-            />)}
-        </AutoSizer>
-      )}
-    </WindowScroller>
+    <div>
+      {
+        transcriptItems.map((transcriptItem, i) => {
+          return transcriptItemRenderer(
+            transcriptItem,
+            transcriptItemRefs[i],
+            transcript.format.includes("speaker-turns"),
+            handleSeek
+          );
+        })
+      }
+    </div>
   );
 };
 
