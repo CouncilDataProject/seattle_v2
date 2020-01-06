@@ -45,6 +45,17 @@ const EventTranscriptSearch = ({
     cache.clearAll();
   };
 
+  const handlePlayClick = (index) => {
+    // Change video's current time to start_time
+    handleSeek(transcript[index].start_time);
+    // Dispatch custom event so that the main transcript will scroll to clicked transcript item
+    document.dispatchEvent(new CustomEvent("scroll-to-transcript-item", {
+      detail: {
+        videoTimePoint: transcript[index].start_time
+      }
+    }));
+  };
+
   const Row = ({ index, parent, key, style }) => (
     // Row is responsible for rendering a transcript item
     // CellMeasurer will dynamically determine the height of a transcript item,
@@ -66,7 +77,7 @@ const EventTranscriptSearch = ({
             />
           </TranscriptItemText>
           <TimeStamp>
-            <Button size="tiny" onClick={() => handleSeek(transcript[index].start_time)}>
+            <Button size="tiny" onClick={() => handlePlayClick(index)}>
               <Icon name="play" />
               {hhmmss(transcript[index].start_time)}
             </Button>
