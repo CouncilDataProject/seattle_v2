@@ -31,18 +31,12 @@ const EventTabs = ({
   votes,
   handleSeek,
   topOffset,
-  mediaQueriesMatches,
-  videoTimePoint
+  mediaQueriesMatches
 }) => {
   // Which menu item is visible
-  const [activeItem, setActiveItem] = React.useState(videoTimePoint ? "transcript" : "details");
+  const [activeItem, setActiveItem] = React.useState("details");
   // A React reference to StyledEventTabs
   const contextRef = React.useRef(null);
-  // A React reference to hold a boolean, whether has already scrolled to transcript portion that contains videoTimePoint
-  // Needed so that it automatically scroll to that transcript portion only once.
-  const transcriptHasScrolledToVideoTimePointRef = React.useRef(false);
-  // videoTimePoint as a React state
-  const [videoTimePointState, setVideoTimePointState] = React.useState(videoTimePoint);
 
   // Callback to handle menu item click event
   const handleItemClick = (e, { name }) => {
@@ -61,19 +55,6 @@ const EventTabs = ({
     setActiveItem(name);
   };
 
-  React.useEffect(() => {
-    // Callback to handle custom scroll-to-transcript-item event.
-    const handleScrollToTranscriptItem = (event) => {
-      setActiveItem("transcript");
-      transcriptHasScrolledToVideoTimePointRef.current = false;
-      setVideoTimePointState(event.detail.videoTimePoint);
-    };
-    document.addEventListener("scroll-to-transcript-item", handleScrollToTranscriptItem);
-    return () => {
-      document.removeEventListener("scroll-to-transcript-item", handleScrollToTranscriptItem);
-    };
-  }, []);
-
   return (
     <StyledEventTabs ref={contextRef}>
       <Sticky
@@ -90,10 +71,8 @@ const EventTabs = ({
       {{
         details: <EventMinutes minutes={minutes} scPageUrl={scPageUrl} />,
         transcript: <EventTranscript
-          transcriptHasScrolledToVideoTimePointRef={transcriptHasScrolledToVideoTimePointRef}
           handleSeek={handleSeek}
           transcript={transcript}
-          videoTimePoint={videoTimePointState}
         />,
         votes: votes.length ? <VotingTable votingData={votes} /> : <div>No votes found for this event.</div>
       }[activeItem]}

@@ -47,14 +47,13 @@ const TimeStamp = styled.div({
  * @param {Number} transcriptItem.start_time
  * @param {Number} transcriptItem.end_time
  * @param {String} [transcriptItem.speaker]
- * @param {Object} transcriptItemRef A React reference to the transcript item in the DOM
  * @param {Boolean} isSpeakerTurnFormat Whether transcriptItem is from timestamped-speaker-turns format.
  * @param {Function} handleSeek Callback to change the event video's current time to the start_time.
  * @return The JSX of the transcript item.
  */
-const transcriptItemRenderer = (transcriptItem, transcriptItemRef, isSpeakerTurnFormat, handleSeek) => {
+const transcriptItemRenderer = (transcriptItem, isSpeakerTurnFormat, handleSeek) => {
   return (
-    <div key={transcriptItem.start_time} ref={transcriptItemRef}>
+    <div key={transcriptItem.start_time}>
       {(!!transcriptItem.speaker) &&
         <Divider horizontal>
           <Header as='h3'>
@@ -76,51 +75,9 @@ const transcriptItemRenderer = (transcriptItem, transcriptItemRef, isSpeakerTurn
   );
 };
 
-/**
- * Use binary search to find transcriptItem's index from videoTimePoint
- * @param {Number} videoTimePoint The video time point
- * @param {Array} transcriptItems List of transcript items
- * @return {Number} The index of a transcript item that is close in time to videoTimePoint.
- */
-const findTranscriptItemIndex = (videoTimePoint, transcriptItems) => {
-  if (videoTimePoint < transcriptItems[0].start_time) {
-    return 0;
-  }
-  if (videoTimePoint > transcriptItems[transcriptItems.length - 1].end_time) {
-    return transcriptItems.length - 1;
-  }
-  let left = 0;
-  let right = transcriptItems.length - 1;
-  while (left <= right) {
-    let mid = Math.floor(left + (right - left) / 2);
-    let transcriptItem = transcriptItems[mid];
-    if (videoTimePoint >= transcriptItem.start_time && videoTimePoint <= transcriptItem.end_time) {
-      // videoTimePoint is between mid transcript item's timestamp
-      return mid;
-    } else if (videoTimePoint >= transcriptItems[mid - 1].end_time && videoTimePoint <= transcriptItem.start_time) {
-      // videoTimePoint is within the timestamped gap that is between mid and mid-1 transcript items
-      // e.g. mid-1.end_time,videoTimePoint,mid.start_time
-      return mid;
-    } else if (videoTimePoint >= transcriptItem.end_time && videoTimePoint <= transcriptItems[mid + 1].start_time) {
-      // videoTimePoint is within the timestamped gap that is between mid and m+1 transcript items
-      // e.g. mid.end_time,videoTimePoint,mid+1.start_time
-      return mid + 1;
-    } else if (videoTimePoint > transcriptItem.end_time) {
-      // videoTimePoint greater than mid.end_time
-      left = mid + 1;
-    } else {
-      // videoTimePoint is less than mid.start_time
-      right = mid - 1;
-    }
-  }
-  return -1;
-};
-
 const EventTranscript = ({
-  transcriptHasScrolledToVideoTimePointRef,
   handleSeek,
-  transcript,
-  videoTimePoint
+  transcript
 }) => {
   // List of timestamped texts
   let transcriptItems = [];
@@ -135,29 +92,12 @@ const EventTranscript = ({
     transcriptItems = transcript.data;
   }
 
-  // List of transcript item React references.
-  const transcriptItemRefs = transcriptItems.map(() => React.createRef());
-
-
-  React.useEffect(() => {
-    let transcriptItemIndex = findTranscriptItemIndex(videoTimePoint, transcriptItems);
-    if (transcriptItemIndex >= 0 && !transcriptHasScrolledToVideoTimePointRef.current) {
-      const transcriptItemRef = transcriptItemRefs[transcriptItemIndex];
-      transcriptItemRef.current.scrollIntoView(true);
-      // transcript item may be covered by menu and/or video
-      // scroll upward by half of window's height
-      window.scrollBy(0, -window.innerHeight / 2);
-      transcriptHasScrolledToVideoTimePointRef.current = true;
-    }
-  }, [transcriptHasScrolledToVideoTimePointRef, transcriptItems, transcriptItemRefs, videoTimePoint]);
-
   return (
     <div>
       {
-        transcriptItems.map((transcriptItem, i) => {
+        transcriptItems.map(transcriptItem => {
           return transcriptItemRenderer(
             transcriptItem,
-            transcriptItemRefs[i],
             transcript.format.includes("speaker-turns"),
             handleSeek
           );

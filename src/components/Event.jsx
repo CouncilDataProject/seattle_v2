@@ -213,7 +213,6 @@ const Event = ({
         handleSeek={handleSeek}
         topOffset={mediaQueriesMatches ? 0 : videoOffSetHeight} //vertical position of event tabs menu when it is sticky
         mediaQueriesMatches={mediaQueriesMatches}
-        videoTimePoint={videoTimePoint}
       />
     </StyledEvent>
   );
