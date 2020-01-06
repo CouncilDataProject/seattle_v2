@@ -150,7 +150,7 @@ export async function getEventById(id) {
         .utc(event.event_datetime.toMillis())
         .toISOString(),
       minutes: minutesItems,
-      transcript: transcript.data,
+      transcript: transcript,
       scPageUrl: event.source_uri,
       votes: votes
     };

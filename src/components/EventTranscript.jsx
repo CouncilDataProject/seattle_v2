@@ -1,142 +1,110 @@
 import React from "react";
-import { Button } from "semantic-ui-react";
-import { AutoSizer, CellMeasurer, CellMeasurerCache, List, WindowScroller } from 'react-virtualized';
-import { Icon } from "semantic-ui-react";
-import Highlighter from "react-highlight-words";
+import { Button, Divider, Header, Icon } from "semantic-ui-react";
 import styled from "@emotion/styled";
 import hhmmss from "../utils/hhmmss";
 
-const TranscriptItem = styled.div({
+const TranscriptItem = styled.div(props => ({
   display: "flex",
   flexWrap: "wrap",
+  justifyContent: "space-between",
   alignItems: "center",
-  margin: "1em 0",
-  padding: "0.2em"
-});
+  // Make vertical spacing between transcript items of timestamped-speaker-turns format a little
+  // bit smaller than other transcript formats.
+  margin: props.isSpeakerTurnFormat ? "2.5em 0.2em" : "3em 0.2em"
+}));
 
-const TranscriptItemText = styled.div(props => ({
-  width: props.isSearch ? "100%" : "85%",
-  order: props.isSearch ? "0" : "1",
-  boxSizing: "border-box",
+const TranscriptItemText = styled.div({
+  width: "100%",
   fontSize: "16px",
   lineHeight: "1.5em",
-  "@media(max-width:1000px)": {
-    width: "100%",
-    order: "0"
+  "@media(min-width:1000px)": {
+    // For screen width >= 1000px
+    // Decrease text's width
+    width: "85%",
+    // Make it appear after TimeStamp
+    order: "1"
   }
-}));
+});
 
-const TimeStamp = styled.div(props => ({
-  width: props.isSearch ? "100%" : "15%",
-  order: props.isSearch ? "1" : "0",
-  boxSizing: "border-box",
-  padding: props.isSearch ? "0" : "0.5em",
-  "@media(max-width:1000px)": {
-    width: "100%",
-    padding: "0",
-    order: "1",
-    margin: "10px 0px 0px 0px"
+const TimeStamp = styled.div({
+  width: "100%",
+  // Increase the vertical spacing between TranscriptItemText and Timestamp
+  marginTop: "10px",
+  "@media(min-width:1000px)": {
+    // For screen width >= 1000px
+    // Decrease timestamp's width
+    width: "15%",
+    // Make it appear before TranscriptItemText
+    order: "0",
+    marginTop: "0"
   }
-}));
+});
+
+/**
+ * 
+ * @param {Object} transcriptItem The transcript item.
+ * @param {String} transcriptItem.text
+ * @param {Number} transcriptItem.start_time
+ * @param {Number} transcriptItem.end_time
+ * @param {String} [transcriptItem.speaker]
+ * @param {Boolean} isSpeakerTurnFormat Whether transcriptItem is from timestamped-speaker-turns format.
+ * @param {Function} handleSeek Callback to change the event video's current time to the start_time.
+ * @return The JSX of the transcript item.
+ */
+const transcriptItemRenderer = (transcriptItem, isSpeakerTurnFormat, handleSeek) => {
+  return (
+    <div key={transcriptItem.start_time}>
+      {(!!transcriptItem.speaker) &&
+        <Divider horizontal>
+          <Header as='h3'>
+            {transcriptItem.speaker}
+          </Header>
+        </Divider>}
+      <TranscriptItem isSpeakerTurnFormat={isSpeakerTurnFormat}>
+        <TranscriptItemText>
+          {transcriptItem.text}
+        </TranscriptItemText>
+        <TimeStamp>
+          <Button size="tiny" onClick={() => handleSeek(transcriptItem.start_time)}>
+            <Icon name="play" />
+            {hhmmss(transcriptItem.start_time)}
+          </Button>
+        </TimeStamp>
+      </TranscriptItem>
+    </div>
+  );
+};
 
 const EventTranscript = ({
-  searchText,
-  transcript,
   handleSeek,
-  isSearch
+  transcript
 }) => {
-  const windowScrollerRef = React.useRef(null);
-
-  const cache = new CellMeasurerCache({
-    fixedWidth: true,
-    defaultHeight: 100,
-  });
-
-  React.useEffect(() => {
-    const handleUpdateScrollPosition = () => {
-      if (windowScrollerRef.current) {
-        windowScrollerRef.current.updatePosition();
-      }
-    };
-    document.addEventListener("update-scroll-position", handleUpdateScrollPosition);
-    return () => {
-      document.removeEventListener("update-scroll-position", handleUpdateScrollPosition);
-    };
-  }, []);
-
-  const onResize = () => {
-    cache.clearAll();
-  };
-
-  const Row = ({ index, parent, key, style }) => (
-    <CellMeasurer
-      key={key}
-      cache={cache}
-      parent={parent}
-      columnIndex={0}
-      rowIndex={index}
-    >
-      <div style={style}>
-        <TranscriptItem>
-          <TimeStamp isSearch={isSearch}>
-            <Button size="tiny" onClick={() => handleSeek(transcript[index].start_time)}>
-              <Icon name="play" />
-              {hhmmss(transcript[index].start_time)}
-            </Button>
-          </TimeStamp>
-          <TranscriptItemText isSearch={isSearch}>
-            <Highlighter
-              searchWords={[searchText]}
-              autoEscape={true}
-              textToHighlight={transcript[index].text}
-            />
-          </TranscriptItemText>
-        </TranscriptItem>
-      </div>
-    </CellMeasurer>
-  );
-
-  if (isSearch) {
-    return (
-      <AutoSizer onResize={onResize}>
-        {({ width, height }) => (
-          <List
-            deferredMeasurementCache={cache}
-            height={height}
-            rowCount={transcript.length}
-            rowHeight={cache.rowHeight}
-            rowRenderer={Row}
-            scrollToIndex={0}
-            style={{ willChange: "" }}
-            width={width}
-          />
-        )}
-      </AutoSizer>
-    );
+  // List of timestamped texts
+  let transcriptItems = [];
+  const isSpeakerTurnFormat = transcript.format.includes("speaker-turns");
+  if (isSpeakerTurnFormat) {
+    transcript.data.forEach(speakerTurn => {
+      // Add speaker field for first timestamped sentence
+      speakerTurn.data[0].speaker = speakerTurn.speaker || "New Speaker";
+      transcriptItems.push(...speakerTurn.data);
+    });
   } else {
-    return (
-      <WindowScroller ref={windowScrollerRef}>
-        {({ height, isScrolling, onChildScroll, scrollTop }) => (
-          <AutoSizer disableHeight onResize={onResize}>
-            {({ width }) => (
-              <List
-                autoHeight
-                deferredMeasurementCache={cache}
-                height={height}
-                isScrolling={isScrolling}
-                onScroll={onChildScroll}
-                rowCount={transcript.length}
-                rowHeight={cache.rowHeight}
-                rowRenderer={Row}
-                scrollTop={scrollTop}
-                style={{ willChange: "" }}
-                width={width}
-              />)}
-          </AutoSizer>
-        )}
-      </WindowScroller>
-    );
+    transcriptItems = transcript.data;
   }
+
+  return (
+    <div>
+      {
+        transcriptItems.map(transcriptItem => {
+          return transcriptItemRenderer(
+            transcriptItem,
+            transcript.format.includes("speaker-turns"),
+            handleSeek
+          );
+        })
+      }
+    </div>
+  );
 };
 
 export default React.memo(EventTranscript);

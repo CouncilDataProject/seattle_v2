@@ -149,6 +149,19 @@ const Event = ({
     }
   };
 
+  const getTranscriptTimestampedText = () => {
+    if (transcript.format.includes("speaker-turns")) {
+      // Flatten speaker turn blocks to timestamped sentences
+      let timestampedSentences = [];
+      transcript.data.forEach(speakerTurnBlock => {
+        timestampedSentences.push(...speakerTurnBlock.data);
+      });
+      return timestampedSentences;
+    }
+    // Return timestamped texts if transcript format is not `timestamped-speaker-turns`
+    return transcript.data;
+  }
+
   return (
     <StyledEvent>
       <Header>
@@ -188,9 +201,8 @@ const Event = ({
         </Player>
       </PlayerContainer>
       <EventSearch
-        transcript={transcript}
+        transcript={getTranscriptTimestampedText()}
         handleSeek={handleSeek}
-        mediaQueriesMatches={mediaQueriesMatches}
         query={query}
       />
       <EventTabs

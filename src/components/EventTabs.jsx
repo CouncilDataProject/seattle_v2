@@ -33,20 +33,25 @@ const EventTabs = ({
   topOffset,
   mediaQueriesMatches
 }) => {
+  // Which menu item is visible
   const [activeItem, setActiveItem] = React.useState("details");
+  // A React reference to StyledEventTabs
   const contextRef = React.useRef(null);
 
-  React.useEffect(() => {
+  // Callback to handle menu item click event
+  const handleItemClick = (e, { name }) => {
     const domRect = contextRef.current.getBoundingClientRect();
     if (domRect.top < 0) {
+      // If the top of contextRef is not visible, scroll so that the top of contextRef
+      // is aligned with the top of viewport.
       contextRef.current.scrollIntoView(true);
       if (!mediaQueriesMatches) {
+        // This is the case where video is fixed to the top and Menu is below the video.
+        // Need to scroll upward by video's height so that the, for example, first minute is visible
+        // below the menu.
         window.scrollBy(0, -topOffset);
       }
     }
-  }, [activeItem, mediaQueriesMatches, topOffset]);
-
-  const handleItemClick = (e, { name }) => {
     setActiveItem(name);
   };
 
@@ -66,10 +71,8 @@ const EventTabs = ({
       {{
         details: <EventMinutes minutes={minutes} scPageUrl={scPageUrl} />,
         transcript: <EventTranscript
-          searchText={""}
-          transcript={transcript}
           handleSeek={handleSeek}
-          isSearch={false}
+          transcript={transcript}
         />,
         votes: votes.length ? <VotingTable votingData={votes} /> : <div>No votes found for this event.</div>
       }[activeItem]}

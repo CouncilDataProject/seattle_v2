@@ -1,7 +1,7 @@
 import React from "react";
 import { Input } from "semantic-ui-react";
 import styled from "@emotion/styled";
-import EventTranscript from "./EventTranscript";
+import EventTranscriptSearch from "./EventTranscriptSearch";
 import isSubstring from "../utils/isSubstring";
 
 const StyledEventSearch = styled.div({
@@ -54,16 +54,12 @@ const SearchResultsWrapper = styled.div({
 const EventSearch = ({
   transcript,
   handleSeek,
-  mediaQueriesMatches,
   query
 }) => {
   const [transcriptSearchText, setTranscriptSearchText] = React.useState(query);
 
   const handleTranscriptSearch = (e, { value }) => {
     setTranscriptSearchText(value);
-    if(!mediaQueriesMatches) {
-      document.dispatchEvent(new CustomEvent("update-scroll-position"));
-    }
   };
 
   const transcriptItems = transcript.filter(({ text }) => isSubstring(text, transcriptSearchText));
@@ -83,11 +79,10 @@ const EventSearch = ({
       )}
       {transcriptSearchText !== "" && transcriptItems.length > 0 && (
         <SearchResultsWrapper>
-          <EventTranscript
+          <EventTranscriptSearch
             searchText={transcriptSearchText}
             transcript={transcriptItems}
             handleSeek={handleSeek}
-            isSearch={true}
           />
         </SearchResultsWrapper>
       )}
