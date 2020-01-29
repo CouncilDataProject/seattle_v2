@@ -4,12 +4,10 @@ import { Loader } from "semantic-ui-react";
 import Event from "../components/Event";
 import useDocumentTitle from "../hooks/useDocumentTitle";
 import getDateTime from "../utils/getDateTime";
-import useDocumentDescription from "../hooks/useDocumentDescription";
 
 const EventContainer = ({ id, query, videoTimePoint }) => {
   const [event, setEvent] = React.useState();
   useDocumentTitle(event ? `${event.name} - ${getDateTime(event.date)}` : 'Loading...');
-  useDocumentDescription(event.description);
 
   React.useEffect(() => {
     try {
