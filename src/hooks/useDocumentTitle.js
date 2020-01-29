@@ -8,7 +8,6 @@ function useDocumentTitle(title) {
       document.title = 'Council Data Project - Seattle';
     };
   }, [title]);
-
 }
 
 export default useDocumentTitle;
