@@ -18,7 +18,7 @@ export async function getAllPeople() {
  */
 
 export async function getVotesForPerson(personId) {
-  // const formattedVotes = [];
+  const formattedVotes = [];
   const person = await db.selectRowById('person', personId);
   const votes = await db.selectRowsAsArray(
     'vote',
@@ -33,50 +33,29 @@ export async function getVotesForPerson(personId) {
   const eventsPromises = eventMinutesItems.map(item => db.selectRowById('event', item.event_id));
   const events = await Promise.all(eventsPromises);
   const allBodies = await db.selectRowsAsArray('body');
-  const formattedVotes = votes.map((voteData, i) => {
+  
+  votes.forEach((voteData, i) => {
     const eventMinuteItem = eventMinutesItems[i];
     const minuteItem = minutesItems[i];
     const event = events[i];
     const body = allBodies.find(item => item.id === event.body_id);
-    return (
-      {
-        id: voteData.id,
-        matter: minuteItem.matter,
-        name: minuteItem.name,
-        // what this person voted
-        voteForPerson: voteData.decision,
-        // what the coucile decided
-        decision: eventMinuteItem.decision,
-        eventId: eventMinuteItem.event_id,
-        index: eventMinuteItem.index,
-        eventDate: moment.utc(event.event_datetime.toMillis()).toISOString(),
-        body_name: body.name
-      }
-    )
-  })
-
-  // votes.forEach((voteData, i) => {
-  //   const eventMinuteItem = eventMinutesItems[i];
-  //   const minuteItem = minutesItems[i];
-  //   const event = events[i];
-  //   const body = allBodies.find(item => item.id === event.body_id);
-  //   // const file = allMinuteFiles.find(item => item.minutes_item_id === minuteItem.id)
-  //   const formattedVote = {
-  //     id: voteData.id,
-  //     matter: minuteItem.matter,
-  //     name: minuteItem.name,
-  //     // what this person voted
-  //     voteForPerson: voteData.decision,
-  //     // what the coucile decided
-  //     decision: eventMinuteItem.decision,
-  //     eventId: eventMinuteItem.event_id,
-  //     index: eventMinuteItem.index,
-  //     eventDate: moment.utc(event.event_datetime.toMillis()).toISOString(),
-  //     body_name: body.name
-  //     // file
-  //   }
-  //   formattedVotes.push(formattedVote)
-// });
-const sortedVotes = orderBy(formattedVotes, ['eventDate', 'index'], ['desc', 'desc']);
-return { ...person, votes: sortedVotes };
+    // const file = allMinuteFiles.find(item => item.minutes_item_id === minuteItem.id)
+    const formattedVote = {
+      id: voteData.id,
+      matter: minuteItem.matter,
+      name: minuteItem.name,
+      // what this person voted
+      voteForPerson: voteData.decision,
+      // what the coucile decided
+      decision: eventMinuteItem.decision,
+      eventId: eventMinuteItem.event_id,
+      index: eventMinuteItem.index,
+      eventDate: moment.utc(event.event_datetime.toMillis()).toISOString(),
+      body_name: body.name
+      // file
+    }
+    formattedVotes.push(formattedVote)
+  });
+  const sortedVotes = orderBy(formattedVotes, ['eventDate', 'index'], ['desc', 'desc']);
+  return { ...person, votes: sortedVotes };
 }
