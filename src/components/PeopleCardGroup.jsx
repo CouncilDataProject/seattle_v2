@@ -31,7 +31,7 @@ const CardHeading = styled('h5')({
 const PeopleCardGroup = ({ people, history }) => {
     return (
         <Fragment>
-            <h2>Voting History</h2>
+            <h2>City Council Members</h2>
             <FlexWrapContainer>
                 {people.map(({ full_name, email, id }) => (
                     <Card
