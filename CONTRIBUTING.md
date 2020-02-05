@@ -13,7 +13,7 @@ Ready to contribute? Here's how to set up `cdp/seattle` for local development.
     $ git clone git@github.com:{your_name_here}/seattle.git
     ```
 
-3. Add remote:
+3. Add upstream remote:
     ```
     $ cd seattle/
     $ git remote add upstream https://github.com/CouncilDataProject/seattle.git
