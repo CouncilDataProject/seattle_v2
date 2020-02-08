@@ -66,7 +66,7 @@ Ready to contribute? Here's how to set up `cdp/seattle` for local development.
     $ git merge master
     ```
     
-    c. Resolve any merge conflicts.
+    c. Resolve any merge conflicts and if needed check that your changes pass linting and tests.
     
     Push your branch to GitHub:
     ```
