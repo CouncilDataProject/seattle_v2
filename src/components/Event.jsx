@@ -160,7 +160,7 @@ const Event = ({
     }
     // Return timestamped texts if transcript format is not `timestamped-speaker-turns`
     return transcript.data;
-  }
+  };
 
   return (
     <StyledEvent>
@@ -173,13 +173,6 @@ const Event = ({
           <EventShareVideo videoPlayerRef={videoPlayerRef} />
         </Segment.Inline>
       </InfoSegment>
-      <Visibility
-        once={false}
-        onBottomPassed={onBottomPassed}
-        onBottomPassedReverse={onBottomPassedReverse}
-      >
-        <FixedSentinel />
-      </Visibility>
       <DummyContainer isFixed={isFixed}>
         <PlayerWrapper>
           <DummyDiv />
@@ -200,6 +193,13 @@ const Event = ({
           </ControlBar>
         </Player>
       </PlayerContainer>
+      <Visibility
+        once={false}
+        onBottomPassed={onBottomPassed}
+        onBottomPassedReverse={onBottomPassedReverse}
+      >
+        <FixedSentinel />
+      </Visibility>
       <EventSearch
         transcript={getTranscriptTimestampedText()}
         handleSeek={handleSeek}
