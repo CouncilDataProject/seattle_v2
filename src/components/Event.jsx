@@ -87,16 +87,19 @@ const PlayerWrapper = styled.div({
 
 const Event = ({
   id,
-  title,
-  date,
-  minutes,
-  scPageUrl,
-  videoUrl,
-  transcript,
-  votes,
+  eventData,
   query,
   videoTimePoint
 }) => {
+  const {
+    title,
+    date,
+    minutes,
+    scPageUrl,
+    videoUrl,
+    transcript,
+    votes
+  } = eventData;
   const videoPlayerRef = React.useRef(null);
   //isFixed is a boolean, whether the video is fixed to the top-right
   const [isFixed, setIsFixed] = React.useState(false);
