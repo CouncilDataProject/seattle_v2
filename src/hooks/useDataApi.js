@@ -7,9 +7,9 @@ import * as apiFunctions from '../api';
  * @param {Boolean} state.isLoading Whether fetching the data is in progress.
  * @param {Boolean} state.isError Whether fetching the data failed.
  * @param {Object} state.error The error object.
- * @param {Object} state.data The resulting data fromo api call.
+ * @param {Object} state.data The resulting data from api call.
  * @param {Object} action The action to change the state.
- * @param {string} action.type The str description of the action.
+ * @param {String} action.type The str description of the action.
  * @param {Object} [action.payload] The action's data.
  * @return {Object} A new state.
  */
@@ -70,7 +70,12 @@ const useDataApi = (functionName, initialFunctionArgs, initialData) => {
 
       try {
         // fetch data from api
-        const data = await apiFunctions[functionName](...functionArgs);
+        let data;
+        if (functionArgs) {
+          data = await apiFunctions[functionName](...functionArgs);
+        } else {
+          data = await apiFunctions[functionName]();
+        }
         if (!didCancel) {
           // dispatch fetching data succeeded 
           dispatch({ type: 'FETCH_SUCCESS', payload: { data: data } });
