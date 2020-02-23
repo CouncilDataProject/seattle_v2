@@ -24,7 +24,7 @@ class GeneralErrorBoundary extends React.Component {
     this.setState({
       error: error,
       errorInfo: errorInfo
-    })
+    });
   }
 
   // Note: error.stack is non-standard and is not on a standards track. It shouldn't be used in production,
@@ -36,13 +36,17 @@ class GeneralErrorBoundary extends React.Component {
       return (
         <div style={layoutStyle}>
           <h2>Something went wrong.</h2>
+          <div>Please fill out a Github issue so we can address it soon :)</div>
+          <br />
           <div>{this.state.error.toString()}</div>
           <details style={detailsStyle}>
-            <section style={sectionStyle}>
-              <strong>Error Stack Trace</strong>
-              <br />
-              <span>{this.state.error.stack}</span>
-            </section>
+            {this.state.error.stack && (
+              <section style={sectionStyle}>
+                <strong>Error Stack Trace</strong>
+                <br />
+                <span>{this.state.error.stack}</span>
+              </section>
+            )}
             <section style={sectionStyle}>
               <strong>Component Stack Trace</strong>
               <span>{this.state.errorInfo.componentStack}</span>
