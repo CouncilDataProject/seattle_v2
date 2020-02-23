@@ -2,6 +2,7 @@ import React from "react";
 import { Container } from "semantic-ui-react";
 import styled from "@emotion/styled";
 import AllEvents from "../containers/AllEvents";
+import GeneralErrorBoundary from "../components/GeneralErrorBoundary";
 
 const Layout = styled(Container)({
   minHeight: "100vh"
@@ -17,7 +18,9 @@ const AllEventsPage = () => {
     <Layout>
       <ContentContainer>
         <h2>All Events</h2>
-        <AllEvents />
+        <GeneralErrorBoundary>
+          <AllEvents />
+        </GeneralErrorBoundary>
       </ContentContainer>
     </Layout>
   );

@@ -3,6 +3,7 @@ import Event from "../containers/Event";
 import { Container } from "semantic-ui-react";
 import styled from "@emotion/styled";
 import queryString from "query-string";
+import GeneralErrorBoundary from "../components/GeneralErrorBoundary";
 
 const Layout = styled(Container)({
   minHeight: "100vh"
@@ -40,10 +41,12 @@ const EventPage = ({ match, location }) => {
   return (
     <Layout>
       <ContentContainer>
-        <Event
-          id={match.params.id}
-          query={parseQuery()}
-          videoTimePoint={parseVideoTimePoint()} />
+        <GeneralErrorBoundary>
+          <Event
+            id={match.params.id}
+            query={parseQuery()}
+            videoTimePoint={parseVideoTimePoint()} />
+        </GeneralErrorBoundary>
       </ContentContainer>
     </Layout>
   );
