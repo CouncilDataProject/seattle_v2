@@ -1,13 +1,14 @@
 import React from "react";
 import styled from "@emotion/styled";
+import DataApiContainer from "./DataApiContainer";
 import EventCardGroup from "../components/EventCardGroup";
-import EventsFilter from "./EventsFilter";
+import EventsFilterContainer from "./EventsFilterContainer";
 import { getDateText } from "../components/SelectDateRange";
 import { getCheckboxText } from "../components/SelectFilterOptions";
 import { getSortText } from "../components/SelectSorting";
 import useDocumentTitle from "../hooks/useDocumentTitle";
 import useFilter, { getSelectedOptions } from "../hooks/useFilter";
-import { getAllEvents, getFilteredEvents } from "../api";
+import useDataApi from "../hooks/useDataApi";
 
 export const FiltersSection = styled.div({
   position: "sticky",
@@ -29,85 +30,57 @@ export const ResultCount = styled.span({
   marginBottom: "2em"
 });
 
-export const LoadingText = styled.span({
-  color: "grey",
-  fontWeight: "700",
-  fontSize: "1.5em",
-  marginTop: "1em",
-});
-
 export const Results = styled.div({
   paddingLeft: "1em"
 });
 
 const EventCardGroupContainer = ({ query }) => {
-  const [initialGetEventsComplete, setInitialGetEventsComplete] = React.useState(false);
-  const [filterEventsComplete, setFilterEventsComplete] = React.useState(true);
-  const [visibleEvents, setVisibleEvents] = React.useState([]);
   const dateRangeFilter = useFilter({ start: '', end: '' }, 'Date', '', getDateText);
   const committeeFilter = useFilter({}, 'Committee', false, getCheckboxText);
   const sortFilter = useFilter({ by: '', order: '' }, 'Sort', '', getSortText);
+  const [apiState, setFunctionArgs] = useDataApi('getEvents', null, null);
   useDocumentTitle('Committee Events');
-
-  React.useEffect(() => {
-    //to prevent setting react state when the component is unmounted
-    let didCancel = false;
-
-    const fetchAllEvents = async () => {
-      const allEvents = await getAllEvents();
-      if (!didCancel) {
-        setVisibleEvents(allEvents);
-        setInitialGetEventsComplete(true);
-      }
-    };
-
-    fetchAllEvents();
-
-    return (() => {
-      didCancel = true;
-    });
-  }, []);
 
   const prevCommitteeRef = React.useRef();
   const prevDateRangeRef = React.useRef();
   const prevSortRef = React.useRef();
 
-  // handlePopupClose is a callback for when one of the FilterPopups in EventsFilter closes. 
+  // handlePopupClose is a callback for when one of the FilterPopups in EventsFilterContainer closes. 
   // It will perform filtering, depending on whether any of filter values have changed.
   const handlePopupClose = async () => {
     if (!committeeFilter.isSameValue(prevCommitteeRef.current) ||
       !dateRangeFilter.isSameValue(prevDateRangeRef.current) ||
       !sortFilter.isSameValue(prevSortRef.current)) {
       window.scroll(0, 0);
-      setFilterEventsComplete(false);
-      setVisibleEvents([]);
-      const events = await getFilteredEvents(dateRangeFilter.value,
-        getSelectedOptions(committeeFilter.value),
-        sortFilter.value);
-      setVisibleEvents(events);
-      prevCommitteeRef.current = committeeFilter.value;
-      prevDateRangeRef.current = dateRangeFilter.value;
-      prevSortRef.current = sortFilter.value;
-      setFilterEventsComplete(true);
+      // update args of api function so that custom hook useDataApi will fetch new data
+      setFunctionArgs(() => {
+        const newFunctionArgs = [
+          dateRangeFilter.value,
+          getSelectedOptions(committeeFilter.value),
+          sortFilter.value
+        ]
+        prevCommitteeRef.current = committeeFilter.value;
+        prevDateRangeRef.current = dateRangeFilter.value;
+        prevSortRef.current = sortFilter.value;
+        return newFunctionArgs;
+      });
     }
   }
 
   return (
     <React.Fragment>
       <FiltersSection>
-        <EventsFilter
+        <EventsFilterContainer
           filters={[committeeFilter, dateRangeFilter, sortFilter]}
           handlePopupClose={handlePopupClose}
           sortByOptions={[{ label: 'Committee', value: 'name' },
           { label: 'Date', value: 'date' }]} />
       </FiltersSection>
       <Results>
-        {(!initialGetEventsComplete || !filterEventsComplete) ? (
-          <LoadingText>Loading...</LoadingText>
-        ) : (
-            <ResultCount>{visibleEvents.length} results</ResultCount>
-          )}
-        <EventCardGroup events={visibleEvents} />
+        <DataApiContainer apiState={apiState}>
+          {apiState.data && <ResultCount>{apiState.data.length} results</ResultCount>}
+          <EventCardGroup events={apiState.data} />
+        </DataApiContainer>
       </Results>
     </React.Fragment>
   );
