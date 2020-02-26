@@ -92,7 +92,7 @@ const Event = ({
   videoTimePoint
 }) => {
   const {
-    title,
+    name: title,
     date,
     minutes,
     scPageUrl,
