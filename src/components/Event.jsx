@@ -68,6 +68,17 @@ const DummyDiv = styled.div({
   width: "100%"
 });
 
+const PlayerCloseButton = styled.button(props => ({
+  position: "absolute",
+  top: "5px",
+  right: "5px",
+  opacity: "0.5",
+  "border-radius": "50%",
+  zIndex: 10,
+  visibility: props.isFixed ? "visible" : "hidden",
+  "&:hover": { opacity: 0.9 }
+}));
+
 const PlayerContainer = styled.div(props => ({
   width: "100%",
   position: "sticky",
@@ -149,6 +160,14 @@ const Event = ({
     }
   };
 
+  const onPlayerCloseButtonClick = () => {
+    // restore player to original size
+    setIsFixed(false);
+
+    // pause video
+    videoPlayerRef.current.pause();
+  }
+
   const getTranscriptTimestampedText = () => {
     if (transcript.format.includes("speaker-turns")) {
       // Flatten speaker turn blocks to timestamped sentences
@@ -179,6 +198,7 @@ const Event = ({
         </PlayerWrapper>
       </DummyContainer>
       <PlayerContainer isFixed={isFixed}>
+        <PlayerCloseButton onClick={onPlayerCloseButtonClick} isFixed={isFixed}>x</PlayerCloseButton>
         <Player
           fluid
           aspectRatio='16:9'
@@ -217,5 +237,6 @@ const Event = ({
     </StyledEvent>
   );
 };
+
 
 export default Event;
