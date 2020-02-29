@@ -1,29 +1,24 @@
 ---
 name: Bug Report
-about: '"Something''s wrong..."'
+about: '"Something went wrong..."'
 title: ''
 labels: ''
 assignees: ''
 
 ---
 
+## System and Software
+* Operating System:
+* Web Browser:
+
+
+## Page or Route
+* Link:
+
+
 ## Description
-*A clear description of the bug*
+*A description of the bug*
 
 
-
-
-## Expected Behavior
-*What did you expect to happen instead?*
-
-
-
-
-## Reproduction
-*A minimal example that exhibits the behavior.*
-
-
-
-
-## Environment
-*Any additional information about your environment*
+## Notes
+*Any other comments you think may be important to reproducing the issue*
