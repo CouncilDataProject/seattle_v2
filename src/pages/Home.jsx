@@ -2,6 +2,7 @@ import React from "react";
 import { Container, Input, Button, Grid } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import styled from "@emotion/styled";
+import GeneralErrorBoundary from "../components/GeneralErrorBoundary";
 
 const Layout = styled(Container)({
   minHeight: "100vh"
@@ -40,31 +41,33 @@ const HomePage = props => {
   return (
     <Layout>
       <ContentContainer>
-        <StyledGrid verticalAlign="middle" centered>
-          <Grid.Row>
-            <h1>Search City Council Transcripts</h1>
-          </Grid.Row>
-          <Grid.Row>
-            <SearchBar
-              placeholder="Enter a keyword to search meeting transcripts"
-              value={searchQuery}
-              onChange={handleSearch}
-              onKeyPress={handleKeyPress}
-            />
-            <Button
-              attached="right"
-              primary
-              as={Link}
-              to={{
-                pathname: '/search',
-                search: `?q=${searchQuery.trim().replace(/\s+/g, '+')}`,
-                state: { query: searchQuery }
-              }}
-            >
-              Search
+        <GeneralErrorBoundary>
+          <StyledGrid verticalAlign="middle" centered>
+            <Grid.Row>
+              <h1>Search City Council Transcripts</h1>
+            </Grid.Row>
+            <Grid.Row>
+              <SearchBar
+                placeholder="Enter a keyword to search meeting transcripts"
+                value={searchQuery}
+                onChange={handleSearch}
+                onKeyPress={handleKeyPress}
+              />
+              <Button
+                attached="right"
+                primary
+                as={Link}
+                to={{
+                  pathname: '/search',
+                  search: `?q=${searchQuery.trim().replace(/\s+/g, '+')}`,
+                  state: { query: searchQuery }
+                }}
+              >
+                Search
             </Button>
-          </Grid.Row>
-        </StyledGrid>
+            </Grid.Row>
+          </StyledGrid>
+        </GeneralErrorBoundary>
       </ContentContainer>
     </Layout>
   );

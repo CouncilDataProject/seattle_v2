@@ -176,7 +176,10 @@ class Database {
                 .collection(table)
                 .doc(id)
                 .get()
-                
+
+            if (!res.exists) {
+                throw new Error(`${table} ${id} doesn't exist.`);
+            }
             return res.data();
         } catch (e) {
             return Promise.reject(e);

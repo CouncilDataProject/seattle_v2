@@ -1,17 +1,16 @@
 import React from 'react';
-import FilterPopup from '../components/FilterPopup';
-import SelectDateRange from '../components/SelectDateRange';
-import SelectFilterOptions from '../components/SelectFilterOptions';
-import SelectSorting from '../components/SelectSorting';
-import { getAllBodies } from '../api';
+import FilterPopup from './FilterPopup';
+import SelectDateRange from './SelectDateRange';
+import SelectFilterOptions from './SelectFilterOptions';
+import SelectSorting from './SelectSorting';
 
 const EventsFilter = ({
+  allBodies,
   filters,
   handlePopupClose,
   sortByOptions
 }) => {
   const mountNodeRef = React.useRef(); //where the FilterPopup will be mounted
-  const [allBodies, setAllBodies] = React.useState([]);
   const [committeeFilter, dateRangeFilter, sortFilter] = filters;
   const [committeeQuery, setCommitteeQuery] = React.useState('');
 
@@ -23,24 +22,6 @@ const EventsFilter = ({
       }
     });
   };
-
-  React.useEffect(() => {
-    //to prevent setting react state when the component is unmounted
-    let didCancel = false;
-
-    const fetchAllBodies = async () => {
-      const allBodies = await getAllBodies();
-      if (!didCancel) {
-        setAllBodies(allBodies);
-      }
-    };
-
-    fetchAllBodies();
-
-    return (() => {
-      didCancel = true;
-    })
-  }, []);
 
   return (
     <React.Fragment>
