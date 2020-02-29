@@ -8,7 +8,25 @@ import { fetchJson } from "./utils";
 
 const storage = firebase.storage();
 
-export async function getAllEvents() {
+/**
+ * A general get events function for the all events page.
+ * @param {Object} [dateRange=null]
+ * @param {String[]} [bodyIDs=null]
+ * @param {Object} [sort=null]
+ * @return {Object[]} The list of events.
+ */
+export async function getEvents(dateRange = null, bodyIDs = null, sort = null) {
+  if (!dateRange && !bodyIDs && !sort) {
+    return await getAllEvents();
+  } else {
+    return await getFilteredEvents(dateRange, bodyIDs, sort);
+  }
+}
+
+/**
+ * @return {Object[]} The list of events sorted by recency.
+ */
+async function getAllEvents() {
   try {
     const allEvents = await db.selectRowsAsArray(
       "event",
@@ -21,6 +39,12 @@ export async function getAllEvents() {
   }
 }
 
+/**
+ * 
+ * @param {String} eventId The event's id.
+ * @param {String} indexOrder The sort order.
+ * @return {Object[]} The list of event minutes item for the event sorted according to indexOrder.
+ */
 export async function getEventMinutes(eventId, indexOrder) {
   try {
     const eventMinutes = await db.selectRowsAsArray(
@@ -34,6 +58,11 @@ export async function getEventMinutes(eventId, indexOrder) {
   };
 }
 
+/**
+ * 
+ * @param {Object} eventMinutesItem The event minutes item.
+ * @return {Object} The event minutes item merged with its corresponding minutes item and attached files.
+ */
 export async function getEventMinutesItem(eventMinutesItem) {
   try {
     const minutesItem = await db.selectRowById("minutes_item", eventMinutesItem.minutes_item_id);
@@ -56,6 +85,11 @@ export async function getEventMinutesItem(eventMinutesItem) {
   };
 }
 
+/**
+ * 
+ * @param {String} bodyId The body's id.
+ * @return {Object} The body's details.
+ */
 export async function getEventBody(bodyId) {
   try {
     const body = await db.selectRowById('body', bodyId);
@@ -65,71 +99,120 @@ export async function getEventBody(bodyId) {
   }
 }
 
+/**
+ * 
+ * @param {String} eventId The event's id.
+ * @return {Object} The content of the transcript file for the event.
+ */
 export async function getEventTranscriptMetadata(eventId) {
   try {
-    const [firstTranscript] = await db.selectRowsAsArray(
-      "transcript",
-      [new WhereCondition(["event_id", WHERE_OPERATORS.eq, eventId])]
-    );
-
-    const transcriptMetadata = await db.selectRowById("file", firstTranscript.file_id);
-
-    // https://firebase.google.com/docs/storage/web/download-files
-    const gsReference = storage.refFromURL(transcriptMetadata.uri);
-    const transcript = await gsReference
-      .getDownloadURL()
-      .then(url => fetchJson(url));
+    const firstTranscript = await getEventTranscript(eventId);
+    const transcript = await downloadFile(firstTranscript.file_id, fetchJson);
     return transcript;
   } catch (e) {
     return Promise.reject(e);
   }
 }
 
-export async function getVotesForEvent(minutesItems) {
-  const minuteItemsWithDecisions = minutesItems.filter(
-    minute => minute.decision !== null
+/**
+ * @param {String} eventId The event's id.
+ * @return {Object} The transcript for the event.
+ */
+async function getEventTranscript(eventId) {
+  const [firstTranscript] = await db.selectRowsAsArray(
+    "transcript",
+    [new WhereCondition(["event_id", WHERE_OPERATORS.eq, eventId])],
+    null,
+    1
   );
 
-  const formattedItems = [];
-  minuteItemsWithDecisions.forEach(item => {
-    formattedItems.push({
-      matter: item.minutes_item.matter,
-      name: item.minutes_item.name,
-      id: item.id,
-      decision: item.decision,
-      index: item.index
-    });
-  });
+  if (!firstTranscript) {
+    throw new Error(`Transcript doesn't exist for event: ${eventId}`);
+  }
 
-  const votePromises = formattedItems.map(item =>
-    db.selectRowsAsArray(
-      "vote",
-      [new WhereCondition(["event_minutes_item_id", WHERE_OPERATORS.eq, item.id])]
-    )
-  );
+  return firstTranscript;
+}
 
-  const minuteItemVotes = await Promise.all(votePromises);
+/**
+ * 
+ * @param {String} fileId The id of the file to be downloaded.
+ * @param {Function} fetchFunction The function that is used to download the file's content.
+ * @return {Object} The file's content.
+ */
+async function downloadFile(fileId, fetchFunction) {
+  const fileMetaData = await db.selectRowById("file", fileId);
 
-  const allPeople = await db.selectRowsAsArray("person");
+  // https://firebase.google.com/docs/storage/web/download-files
+  const gsReference = storage.refFromURL(fileMetaData.uri);
+  const file = await gsReference
+    .getDownloadURL()
+    .then(url => fetchFunction(url));
 
-  formattedItems.forEach((item, i) => {
-    const votes = minuteItemVotes[i];
-    const votesByPerson = [];
-    votes.forEach(vote => {
-      const person = allPeople.find(person => person.id === vote.person_id)
-      votesByPerson.push({
-        decision: vote.decision,
-        person_id: vote.person_id,
-        full_name: person.full_name
+  if (!file) {
+    throw new Error(`Failed to download ${fileMetaData.filename} from ${fileMetaData.uri}.`);
+  }
+  return file;
+}
+
+/**
+ * 
+ * @param {Object[]} minutesItems The list of minutes item.
+ * @return {Object[]} The voting records for each minutes item in minutesItems.
+ */
+async function getVotesForEvent(minutesItems) {
+  try {
+    const minuteItemsWithDecisions = minutesItems.filter(
+      minute => minute.decision !== null
+    );
+
+    const formattedItems = [];
+    minuteItemsWithDecisions.forEach(item => {
+      formattedItems.push({
+        matter: item.minutes_item.matter,
+        name: item.minutes_item.name,
+        id: item.id,
+        decision: item.decision,
+        index: item.index
       });
     });
 
-    item.formattedIndividualVotes = sortBy(votesByPerson, vote => vote.full_name);
-  });
+    const votePromises = formattedItems.map(item =>
+      db.selectRowsAsArray(
+        "vote",
+        [new WhereCondition(["event_minutes_item_id", WHERE_OPERATORS.eq, item.id])]
+      )
+    );
 
-  return formattedItems;
+    const minuteItemVotes = await Promise.all(votePromises);
+
+    const allPeople = await db.selectRowsAsArray("person");
+
+    formattedItems.forEach((item, i) => {
+      const votes = minuteItemVotes[i];
+      const votesByPerson = [];
+      votes.forEach(vote => {
+        const person = allPeople.find(person => person.id === vote.person_id)
+        votesByPerson.push({
+          decision: vote.decision,
+          person_id: vote.person_id,
+          full_name: person.full_name
+        });
+      });
+
+      item.formattedIndividualVotes = sortBy(votesByPerson, vote => vote.full_name);
+    });
+
+    return formattedItems;
+  } catch (e) {
+    return Promise.reject(e);
+  }
 }
 
+/**
+ * 
+ * @param {String} id The event's id
+ * @return {Object} The event's details.
+ */
 export async function getEventById(id) {
   try {
     const event = await db.selectRowById("event", id);
@@ -225,6 +308,9 @@ export async function getEventsByIndexedTerm(term, dateRange = {}, bodyIDs = [],
   }
 }
 
+/**
+ * @return {Object[]} The list of bodies.
+ */
 export async function getAllBodies() {
   try {
     return db.selectRowsAsArray(
@@ -249,7 +335,7 @@ export async function getAllBodies() {
 * the date range and the event's body id is in bodyIDs(if it's non-empty). The events
 * are sorted according to the sort options.
 */
-export async function getFilteredEvents(dateRange, bodyIDs, sort) {
+async function getFilteredEvents(dateRange, bodyIDs, sort) {
   try {
     const promises = [];
     if (bodyIDs.length) {
