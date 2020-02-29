@@ -73,7 +73,7 @@ const PlayerCloseButton = styled.button(props => ({
   top: "5px",
   right: "5px",
   opacity: "0.5",
-  "border-radius": "50%",
+  borderRadius: "50%",
   zIndex: 10,
   visibility: props.isFixed ? "visible" : "hidden",
   "&:hover": { opacity: 0.9 }
