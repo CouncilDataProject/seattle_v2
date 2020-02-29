@@ -36,7 +36,17 @@ class GeneralErrorBoundary extends React.Component {
       return (
         <div style={layoutStyle}>
           <h2>Something went wrong.</h2>
-          <div>Please fill out a Github issue so we can address it soon :)</div>
+          <div>
+            Sorry about that. To alert us of the issue, please fill out an{' '}
+            <a
+              target='_blank'
+              rel='noopener noreferrer'
+              href='https://github.com/CouncilDataProject/seattle/issues'
+            >
+              issue ticket
+            </a>{' '}
+            and we will try to fix it as soon as we can.
+          </div>
           <br />
           <div>{this.state.error.toString()}</div>
           <details style={detailsStyle}>
