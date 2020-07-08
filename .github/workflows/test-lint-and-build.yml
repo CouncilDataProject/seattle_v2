@@ -47,6 +47,7 @@ jobs:
     - name: Install Dependencies
       run: |
         npm i node-gyp -g
+        npm i webworker-threads
         npm i
     - name: Run Build
       run: |
