@@ -54,6 +54,7 @@ jobs:
         node-version: '12.x'
     - name: Install Dependencies
       run: |
+        npm i node-gyp -g
         npm i
     - name: Build
       run: |
