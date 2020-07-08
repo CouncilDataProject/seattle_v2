@@ -5,7 +5,7 @@ import styled from "@emotion/styled";
 import GeneralErrorBoundary from "../components/GeneralErrorBoundary";
 
 const Layout = styled(Container)({
-  minHeight: "100vh"
+  minHeight: "55vh"
 });
 
 const ContentContainer = styled(Container)({

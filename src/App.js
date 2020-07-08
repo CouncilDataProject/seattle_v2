@@ -3,6 +3,7 @@ import ReactGA from "react-ga";
 import withTracker from "./utils/withTracker";
 import { HashRouter as Router, Route, Switch } from "react-router-dom";
 import Header from "./components/Header";
+import Banner from "./components/Banner";
 import Footer from "./components/Footer";
 import GeneralErrorBoundary from "./components/GeneralErrorBoundary";
 import Home from "./pages/Home";
@@ -28,6 +29,7 @@ const App = () => (
           <Route exact path="/people" component={withTracker(People)} />
           <Route exact path="/people/:id" component={withTracker(Person)} />
         </Switch>
+        <Banner />
         <Footer />
       </Router>
     </GeneralErrorBoundary>
