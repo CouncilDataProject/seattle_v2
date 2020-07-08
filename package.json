@@ -25,6 +25,7 @@
     "typescript": "^3.9.6",
     "uuid": "^3.4.0",
     "video-react": "^0.14.1",
+    "webworker-threads": "^0.7.17",
     "wordnet-db": "^3.1.14"
   },
   "scripts": {

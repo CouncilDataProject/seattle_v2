@@ -54,8 +54,6 @@ jobs:
         node-version: '10.x'
     - name: Install Dependencies
       run: |
-        npm i node-gyp -g
-        npm i webworker-threads
         npm i
     - name: Build
       run: |
