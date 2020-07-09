@@ -9,7 +9,7 @@ const Banner = () => (
             href="https://forms.gle/eGyjhPx4hU3UBidKA"
             style={{ textDecoration: "underline" }}
           >
-             &nbsp;giving&nbsp;your&nbsp;feedback&nbsp;>
+             &nbsp;giving&nbsp;your&nbsp;feedback&nbsp;&gt;
           </a>
       </p>
   </Container>

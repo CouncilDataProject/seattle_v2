@@ -1,7 +1,7 @@
 import firebase from "firebase/app";
 import "firebase/storage";
 import moment from "moment";
-import natural from "natural";
+import stemmer from "stemmer";
 import { flatten, orderBy, sortBy, groupBy, mapValues, filter } from "lodash";
 import { db, WhereCondition, WHERE_OPERATORS, OrderCondition, ORDER_OPERATORS } from "./database";
 import { fetchJson } from "./utils";
@@ -40,7 +40,7 @@ async function getAllEvents() {
 }
 
 /**
- * 
+ *
  * @param {String} eventId The event's id.
  * @param {String} indexOrder The sort order.
  * @return {Object[]} The list of event minutes item for the event sorted according to indexOrder.
@@ -59,7 +59,7 @@ export async function getEventMinutes(eventId, indexOrder) {
 }
 
 /**
- * 
+ *
  * @param {Object} eventMinutesItem The event minutes item.
  * @return {Object} The event minutes item merged with its corresponding minutes item and attached files.
  */
@@ -86,7 +86,7 @@ export async function getEventMinutesItem(eventMinutesItem) {
 }
 
 /**
- * 
+ *
  * @param {String} bodyId The body's id.
  * @return {Object} The body's details.
  */
@@ -100,7 +100,7 @@ export async function getEventBody(bodyId) {
 }
 
 /**
- * 
+ *
  * @param {String} eventId The event's id.
  * @return {Object} The content of the transcript file for the event.
  */
@@ -134,7 +134,7 @@ async function getEventTranscript(eventId) {
 }
 
 /**
- * 
+ *
  * @param {String} fileId The id of the file to be downloaded.
  * @param {Function} fetchFunction The function that is used to download the file's content.
  * @return {Object} The file's content.
@@ -155,7 +155,7 @@ async function downloadFile(fileId, fetchFunction) {
 }
 
 /**
- * 
+ *
  * @param {Object[]} minutesItems The list of minutes item.
  * @return {Object[]} The voting records for each minutes item in minutesItems.
  */
@@ -209,7 +209,7 @@ async function getVotesForEvent(minutesItems) {
 }
 
 /**
- * 
+ *
  * @param {String} id The event's id
  * @return {Object} The event's details.
  */
@@ -245,11 +245,11 @@ export async function getEventById(id) {
 * @param {string} term The search term
 * @param {Object} dateRange The start and end dates to filter search results.
 * @param {string} dateRange.start
-* @param {string} dateRange.end 
+* @param {string} dateRange.end
 * @param {string[]} bodyIDs The list of committee/body ids to filter search results.
 * @param {Object} sort The sort by and sort order options.
 * @param {string} sort.by
-* @param {string} sort.order 
+* @param {string} sort.order
 * @return {Object[]} The search results, where each event's date is within
 * the date range and the event's body id is in bodyIDs(if it's non-empty). The search
 * results are sorted according to the sort options.
@@ -257,9 +257,8 @@ export async function getEventById(id) {
 export async function getEventsByIndexedTerm(term, dateRange = {}, bodyIDs = [], sort = {}) {
   const valueMin = 0;
   try {
-    natural.PorterStemmer.attach();
 
-    const stemmedTokens = term.tokenizeAndStem();
+    const stemmedTokens = term.split(" ").map(token => stemmer(token));
     if (stemmedTokens.length === 0) {
       return [];
     }
@@ -326,11 +325,11 @@ export async function getAllBodies() {
 /**
 * @param {Object} dateRange The start and end dates to filter events.
 * @param {string} dateRange.start
-* @param {string} dateRange.end 
+* @param {string} dateRange.end
 * @param {string[]} bodyIDs The list of committee/body ids to filter events.
 * @param {Object} sort The sort by and sort order options.
 * @param {string} sort.by
-* @param {string} sort.order 
+* @param {string} sort.order
 * @return {Object[]} A list of events, where each event's date is within
 * the date range and the event's body id is in bodyIDs(if it's non-empty). The events
 * are sorted according to the sort options.
@@ -397,8 +396,8 @@ async function getBasicEvents(events) {
 /**
 * @param {Object[]} events The list of events to filter.
 * @param {Object} dateRange The start and end dates to filter events.
-* @param {string} dateRange.start 
-* @param {string} dateRange.end 
+* @param {string} dateRange.start
+* @param {string} dateRange.end
 * @param {string[]} bodyIDs The list of committee/body ids to filter events.
 * @return {Object[]} A list of events, where each event's date is within
 * date range and the event's body id is in bodyIDs(if its non-empty).
@@ -428,7 +427,7 @@ function filterEvents(events, dateRange, bodyIDs) {
 * @param {Object[]} events The list of events to sort.
 * @param {Object} sortOption The sort by and sort order options.
 * @param {string} sortOption.by
-* @param {string} sortOption.order 
+* @param {string} sortOption.order
 * @param {boolean} isSearch Whether the list of events is from the search page.
 * @return {Object[]} A list of events sorted according to sortOption.
 */
