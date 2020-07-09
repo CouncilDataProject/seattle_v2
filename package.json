@@ -9,9 +9,8 @@
     "eslint-utils": "^1.4.2",
     "firebase": "^7.15.5",
     "google-auth-library": "^6.0.3",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "moment": "^2.27.0",
-    "natural": "^2.1.5",
     "query-string": "^6.13.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -22,11 +21,10 @@
     "react-virtualized": "^9.21.1",
     "request": "^2.88.2",
     "semantic-ui-react": "^0.88.1",
+    "stemmer": "^1.0.5",
     "typescript": "^3.9.6",
     "uuid": "^3.4.0",
-    "video-react": "^0.14.1",
-    "webworker-threads": "^0.7.17",
-    "wordnet-db": "^3.1.14"
+    "video-react": "^0.14.1"
   },
   "scripts": {
     "start": "react-scripts start",
