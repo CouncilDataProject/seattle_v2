@@ -6,6 +6,8 @@ const Banner = () => (
       <p>
           Support this project by
           <a
+            target="_blank"
+            rel="noopener noreferrer"
             href="https://forms.gle/eGyjhPx4hU3UBidKA"
             style={{ textDecoration: "underline" }}
           >
