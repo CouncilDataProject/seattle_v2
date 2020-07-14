@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from '@emotion/styled';
 import {
   getCheckboxText,
@@ -12,7 +12,6 @@ import EventCardGroup from '../components/EventCardGroup';
 import EventsFilterContainer from './EventsFilterContainer';
 import useDocumentTitle from '../hooks/useDocumentTitle';
 import useDataApi from '../hooks/useDataApi';
-
 
 export const FiltersSection = styled.div({
   position: 'sticky',
@@ -59,9 +58,9 @@ const EventCardGroupContainer = ({ query }) => {
   const prevDateRangeRef = React.useRef({});
   const prevSortRef = React.useRef({});
 
-  // handlePopupClose is a callback for when one of the FilterPopups in EventsFilterContainer closes.
+  // memoizedHandlePopupClose is a callback for when one of the FilterPopups in EventsFilterContainer closes.
   // It will perform filtering, depending on whether any of filter values have changed.
-  const handlePopupClose = async () => {
+  const memoizeHandlePopupClose = useCallback(() => {
     if (
       !committeeFilter.isSameState(prevCommitteeRef.current) ||
       !dateRangeFilter.isSameState(prevDateRangeRef.current) ||
@@ -81,14 +80,14 @@ const EventCardGroupContainer = ({ query }) => {
         return newFunctionArgs;
       });
     }
-  };
+  }, [committeeFilter, dateRangeFilter, sortFilter, setFunctionArgs]);
 
   return (
     <React.Fragment>
       <FiltersSection>
         <EventsFilterContainer
           filters={[committeeFilter, dateRangeFilter, sortFilter]}
-          handlePopupClose={handlePopupClose}
+          handlePopupClose={memoizeHandlePopupClose}
           sortOptions={[
             { by: 'date', order: 'desc', label: 'Newest first' },
             { by: 'date', order: 'asc', label: 'Oldest first' },

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   FilterPopup,
@@ -14,7 +14,8 @@ const EventsFilter = ({
   sortOptions,
 }) => {
   const [committeeFilter, dateRangeFilter, sortFilter] = filters;
-  const [committeeQuery, setCommitteeQuery] = React.useState('');
+  const [committeeQuery, setCommitteeQuery] = useState('');
+  const [shouldFetchData, setShouldFetchData] = useState(false);
 
   const getCommitteeNameOptions = () => {
     return allBodies.map((body) => {
@@ -28,8 +29,16 @@ const EventsFilter = ({
 
   const handleSortingPopupClose = () => {
     sortFilter.setPopupIsOpen(false);
-    handlePopupClose();
+    setShouldFetchData(true);
   };
+
+  useEffect(() => {
+    if (!sortFilter.popupIsOpen && shouldFetchData) {
+      handlePopupClose();
+    }
+
+    return () => setShouldFetchData(false);
+  }, [shouldFetchData, sortFilter.popupIsOpen, handlePopupClose]);
 
   return (
     <React.Fragment>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Button, Form } from 'semantic-ui-react';
 import {
   getCheckboxText,
@@ -52,9 +52,10 @@ const EventCardGroupContainer = ({ query }) => {
   const prevSortRef = React.useRef({});
   const prevSearchRef = React.useRef(query);
 
-  // handlePopupClose is a callback for when one of the FilterPopups in EventsFilterContainer closes.
+  // memoizedHandlePopupClose is a callback for when one of the FilterPopups in EventsFilterContainer closes.
   // It will perform filtering, depending on whether any of filter values or the searchQuery have changed.
-  const handlePopupClose = () => {
+
+  const memoizedHandlePopupClose = useCallback(() => {
     if (
       !committeeFilter.isSameState(prevCommitteeRef.current) ||
       !dateRangeFilter.isSameState(prevDateRangeRef.current) ||
@@ -81,11 +82,18 @@ const EventCardGroupContainer = ({ query }) => {
         search: `?q=${searchQuery.trim().replace(/\s+/g, '+')}`,
       });
     }
-  };
+  }, [
+    searchQuery,
+    committeeFilter,
+    dateRangeFilter,
+    sortFilter,
+    setFunctionArgs,
+    history,
+  ]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    handlePopupClose();
+    memoizedHandlePopupClose();
   };
 
   return (
@@ -107,7 +115,7 @@ const EventCardGroupContainer = ({ query }) => {
         </Form>
         <EventsFilterContainer
           filters={[committeeFilter, dateRangeFilter, sortFilter]}
-          handlePopupClose={handlePopupClose}
+          handlePopupClose={memoizedHandlePopupClose}
           sortOptions={[
             { by: 'value', order: 'desc', label: 'Most relevant' },
             { by: 'date', order: 'desc', label: 'Newest first' },
