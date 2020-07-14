@@ -55,7 +55,10 @@ const EventCardGroupContainer = ({ query }) => {
   useDocumentTitle('Committee Events');
 
   const prevCommitteeRef = React.useRef({});
-  const prevDateRangeRef = React.useRef({});
+  const prevDateRangeRef = React.useRef({
+    start: '',
+    end: ''
+  });
   const prevSortRef = React.useRef({
     by: 'date',
     order: 'desc',
