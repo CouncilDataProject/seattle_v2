@@ -59,7 +59,7 @@ const EventCardGroupContainer = ({ query }) => {
   const prevSortRef = React.useRef({});
 
   // memoizedHandlePopupClose is a callback for when one of the FilterPopups in EventsFilterContainer closes.
-  // It will perform filtering, depending on whether any of filter values have changed.
+  // It will perform filtering, depending on whether any of filter state have changed.
   const memoizeHandlePopupClose = useCallback(() => {
     if (
       !committeeFilter.isSameState(prevCommitteeRef.current) ||
