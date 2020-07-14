@@ -49,7 +49,11 @@ const EventCardGroupContainer = ({ query }) => {
 
   const prevCommitteeRef = React.useRef({});
   const prevDateRangeRef = React.useRef({});
-  const prevSortRef = React.useRef({});
+  const prevSortRef = React.useRef({
+    by: 'value',
+    order: 'desc',
+    label: 'Most relevant'
+  });
   const prevSearchRef = React.useRef(query);
 
   // memoizedHandlePopupClose is a callback for when one of the FilterPopups in EventsFilterContainer closes.
