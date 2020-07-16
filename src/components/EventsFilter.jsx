@@ -1,61 +1,100 @@
-import React from 'react';
-import FilterPopup from './FilterPopup';
-import SelectDateRange from './SelectDateRange';
-import SelectFilterOptions from './SelectFilterOptions';
-import SelectSorting from './SelectSorting';
+import React, { useEffect, useState } from 'react';
+
+import {
+  FilterPopup,
+  SelectDateRange,
+  SelectSorting,
+  SelectTextFilterOptions,
+} from '@councildataproject/cdp-instance';
 
 const EventsFilter = ({
   allBodies,
   filters,
   handlePopupClose,
-  sortByOptions
+  sortOptions,
 }) => {
-  const mountNodeRef = React.useRef(); //where the FilterPopup will be mounted
   const [committeeFilter, dateRangeFilter, sortFilter] = filters;
-  const [committeeQuery, setCommitteeQuery] = React.useState('');
+  const [committeeQuery, setCommitteeQuery] = useState('');
+  const [shouldFetchData, setShouldFetchData] = useState(false);
 
   const getCommitteeNameOptions = () => {
-    return allBodies.map(body => {
+    return allBodies.map((body) => {
       return {
         name: body.id,
-        text: body.name
-      }
+        label: body.name,
+        disabled: false,
+      };
     });
   };
+
+  const handleSortingPopupClose = () => {
+    sortFilter.setPopupIsOpen(false);
+    setShouldFetchData(true);
+  };
+
+  useEffect(() => {
+    if (!sortFilter.popupIsOpen && shouldFetchData) {
+      handlePopupClose();
+    }
+
+    return () => setShouldFetchData(false);
+  }, [shouldFetchData, sortFilter.popupIsOpen, handlePopupClose]);
 
   return (
     <React.Fragment>
       <FilterPopup
-        filter={committeeFilter}
+        clear={committeeFilter.clear}
+        getTextRep={committeeFilter.getTextRep}
+        isActive={committeeFilter.isActive}
         header='Select Committees'
+        popupIsOpen={committeeFilter.popupIsOpen}
+        setPopupIsOpen={committeeFilter.setPopupIsOpen}
         handlePopupClose={handlePopupClose}
-        mountNodeRef={mountNodeRef}>
-        <SelectFilterOptions
-          filter={committeeFilter}
+        closeOnChange={false}
+      >
+        <SelectTextFilterOptions
+          name={committeeFilter.name}
+          state={committeeFilter.state}
+          update={committeeFilter.update}
           options={getCommitteeNameOptions()}
           optionQuery={committeeQuery}
-          setOptionQuery={setCommitteeQuery} />
+          setOptionQuery={setCommitteeQuery}
+        />
       </FilterPopup>
       <FilterPopup
-        filter={dateRangeFilter}
+        clear={dateRangeFilter.clear}
+        getTextRep={dateRangeFilter.getTextRep}
+        isActive={dateRangeFilter.isActive}
         header='Select Date Range'
+        popupIsOpen={dateRangeFilter.popupIsOpen}
+        setPopupIsOpen={dateRangeFilter.setPopupIsOpen}
         handlePopupClose={handlePopupClose}
-        mountNodeRef={mountNodeRef}>
+        closeOnChange={false}
+      >
         <SelectDateRange
-          filter={dateRangeFilter} />
+          state={dateRangeFilter.state}
+          update={dateRangeFilter.update}
+        />
       </FilterPopup>
       <FilterPopup
-        filter={sortFilter}
-        header='Select Sorting'
+        clear={sortFilter.clear}
+        getTextRep={sortFilter.getTextRep}
+        isActive={sortFilter.isActive}
+        header='Sort Results By'
+        popupIsOpen={sortFilter.popupIsOpen}
+        setPopupIsOpen={sortFilter.setPopupIsOpen}
         handlePopupClose={handlePopupClose}
-        mountNodeRef={mountNodeRef}>
+        closeOnChange={true}
+      >
         <SelectSorting
-          filter={sortFilter}
-          sortByOptions={sortByOptions} />
+          sortOptions={sortOptions}
+          state={sortFilter.state}
+          update={sortFilter.update}
+          onPopupClose={handleSortingPopupClose}
+        />
       </FilterPopup>
-      <div ref={mountNodeRef} />
     </React.Fragment>
-  )
+  );
 };
 
 export default React.memo(EventsFilter);
