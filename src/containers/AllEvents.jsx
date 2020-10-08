@@ -27,12 +27,6 @@ export const FiltersSection = styled.div({
   },
 });
 
-export const ResultCount = styled.span({
-  display: 'block',
-  color: 'grey',
-  marginBottom: '2em',
-});
-
 export const Results = styled.div({
   paddingLeft: '1em',
 });
@@ -103,9 +97,6 @@ const EventCardGroupContainer = ({ query }) => {
       </FiltersSection>
       <Results>
         <DataApiContainer apiState={apiState}>
-          {apiState.data && (
-            <ResultCount>{apiState.data.length} results</ResultCount>
-          )}
           <EventCardGroup events={apiState.data} />
         </DataApiContainer>
       </Results>

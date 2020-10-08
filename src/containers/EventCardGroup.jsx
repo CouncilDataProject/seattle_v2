@@ -10,7 +10,7 @@ import {
 import DataApiContainer from './DataApiContainer';
 import EventCardGroup from '../components/EventCardGroup';
 import EventsFilterContainer from './EventsFilterContainer';
-import { FiltersSection, ResultCount, Results } from './AllEvents';
+import { FiltersSection, Results } from './AllEvents';
 import useDocumentTitle from '../hooks/useDocumentTitle';
 import useDataApi from '../hooks/useDataApi';
 import { useHistory } from 'react-router-dom';
@@ -131,9 +131,6 @@ const EventCardGroupContainer = ({ query }) => {
       </FiltersSection>
       <Results>
         <DataApiContainer apiState={apiState}>
-          {apiState.data && (
-            <ResultCount>{apiState.data.length} results</ResultCount>
-          )}
           <EventCardGroup
             events={apiState.data}
             query={prevSearchRef.current}
