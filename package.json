@@ -10,7 +10,7 @@
     "eslint-utils": "^1.4.2",
     "firebase": "^7.15.5",
     "google-auth-library": "^6.0.3",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "moment": "^2.27.0",
     "query-string": "^6.13.1",
     "react": "^16.13.1",
